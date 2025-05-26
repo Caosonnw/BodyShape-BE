@@ -1,0 +1,202 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "mysql"
+  url      = env("DATABASE_URL")
+}
+
+model users {
+  user_id          Int                @id @default(autoincrement())
+  email            String?            @db.VarChar(150)
+  password         String?            @db.VarChar(80)
+  full_name        String?            @db.VarChar(80)
+  gender           Boolean?
+  date_of_birth    String?            @db.VarChar(255)
+  phone_number     String?            @db.VarChar(10)
+  avatar           String?            @db.VarChar(255)
+  role             String?            @default("CUSTOMER") @db.VarChar(20)
+  created_by       Int?
+  refresh_token    String?            @db.Text
+  checkins         checkins[]
+  coaches          coaches?
+  customers        customers?
+  equipment_issues equipment_issues[]
+  healths          healths[]
+  users            users?             @relation("usersTousers", fields: [created_by], references: [user_id], onDelete: NoAction, onUpdate: NoAction, map: "users_ibfk_1")
+  other_users      users[]            @relation("usersTousers")
+
+  @@index([created_by], map: "created_by")
+}
+
+model checkins {
+  checkin_id    Int       @id @default(autoincrement())
+  user_id       Int?
+  checkin_time  DateTime? @db.DateTime(0)
+  checkout_time DateTime? @db.DateTime(0)
+  users         users?    @relation(fields: [user_id], references: [user_id], onDelete: NoAction, onUpdate: NoAction, map: "checkins_ibfk_1")
+
+  @@index([user_id], map: "user_id")
+}
+
+model coaches {
+  user_id            Int                  @id
+  specialization     String?              @db.VarChar(255)
+  bio                String?              @db.VarChar(255)
+  rating_avg         String?              @db.VarChar(255)
+  users              users                @relation(fields: [user_id], references: [user_id], onDelete: NoAction, onUpdate: NoAction, map: "coaches_ibfk_1")
+  reviews            reviews[]
+  training_plans     training_plans[]
+  training_schedules training_schedules[]
+}
+
+model customers {
+  user_id            Int                  @id
+  health_info        String?              @db.VarChar(255)
+  goals              String?              @db.VarChar(255)
+  users              users                @relation(fields: [user_id], references: [user_id], onDelete: NoAction, onUpdate: NoAction, map: "customers_ibfk_1")
+  invoices           invoices[]
+  membership_cards   membership_cards[]
+  payments           payments[]
+  reviews            reviews[]
+  training_plans     training_plans[]
+  training_schedules training_schedules[]
+}
+
+model equipment_issues {
+  issue_id          Int         @id @default(autoincrement())
+  equipment_id      Int?
+  reported_by       Int?
+  issue_description String?     @db.VarChar(255)
+  reported_at       DateTime?   @db.DateTime(0)
+  status            String?     @db.VarChar(255)
+  resolved_at       DateTime?   @db.DateTime(0)
+  equipments        equipments? @relation(fields: [equipment_id], references: [equipment_id], onDelete: NoAction, onUpdate: NoAction, map: "equipment_issues_ibfk_1")
+  users             users?      @relation(fields: [reported_by], references: [user_id], onDelete: NoAction, onUpdate: NoAction, map: "equipment_issues_ibfk_2")
+
+  @@index([equipment_id], map: "equipment_id")
+  @@index([reported_by], map: "reported_by")
+}
+
+model equipments {
+  equipment_id          Int                @id @default(autoincrement())
+  equipment_name        String?            @db.VarChar(255)
+  created_at            DateTime?          @db.DateTime(0)
+  status                String?            @db.VarChar(255)
+  last_maintenance_date String?            @db.VarChar(255)
+  location              String?            @db.VarChar(255)
+  description           String?            @db.VarChar(255)
+  equipment_issues      equipment_issues[]
+}
+
+model invoices {
+  invoice_id   Int        @id @default(autoincrement())
+  user_id      Int?
+  total_amount Int?
+  issued_date  DateTime?  @db.DateTime(0)
+  due_date     DateTime?  @db.DateTime(0)
+  status       String?    @db.VarChar(255)
+  customers    customers? @relation(fields: [user_id], references: [user_id], onDelete: NoAction, onUpdate: NoAction, map: "invoices_ibfk_1")
+
+  @@index([user_id], map: "user_id")
+}
+
+model membership_cards {
+  card_id    Int        @id @default(autoincrement())
+  user_id    Int?
+  package_id Int?
+  start_date DateTime?  @db.DateTime(0)
+  end_date   DateTime?  @db.DateTime(0)
+  status     String?    @db.VarChar(30)
+  packages   packages?  @relation(fields: [package_id], references: [package_id], onDelete: NoAction, onUpdate: NoAction, map: "membership_cards_ibfk_2")
+  customers  customers? @relation(fields: [user_id], references: [user_id], onDelete: NoAction, onUpdate: NoAction, map: "membership_cards_ibfk_3")
+
+  @@index([package_id], map: "package_id")
+  @@index([user_id], map: "user_id")
+}
+
+model packages {
+  package_id       Int                @id @default(autoincrement())
+  package_name     String?            @db.VarChar(255)
+  description      String?            @db.VarChar(255)
+  price            Int?
+  duration_days    Int?
+  membership_cards membership_cards[]
+  payments         payments[]
+}
+
+model payments {
+  payment_id   Int        @id @default(autoincrement())
+  user_id      Int?
+  package_id   Int?
+  amount       Int?
+  payment_date DateTime?  @db.DateTime(0)
+  method       String?    @db.VarChar(255)
+  status       String?    @db.VarChar(255)
+  packages     packages?  @relation(fields: [package_id], references: [package_id], onDelete: NoAction, onUpdate: NoAction, map: "payments_ibfk_2")
+  customers    customers? @relation(fields: [user_id], references: [user_id], onDelete: NoAction, onUpdate: NoAction, map: "payments_ibfk_3")
+
+  @@index([package_id], map: "package_id")
+  @@index([user_id], map: "user_id")
+}
+
+model reviews {
+  review_id  Int        @id @default(autoincrement())
+  user_id    Int?
+  coach_id   Int?
+  rating     Int?
+  comment    String?    @db.VarChar(255)
+  created_at DateTime?  @db.DateTime(0)
+  customers  customers? @relation(fields: [user_id], references: [user_id], onDelete: NoAction, onUpdate: NoAction, map: "reviews_ibfk_3")
+  coaches    coaches?   @relation(fields: [coach_id], references: [user_id], onDelete: NoAction, onUpdate: NoAction, map: "reviews_ibfk_4")
+
+  @@index([coach_id], map: "coach_id")
+  @@index([user_id], map: "user_id")
+}
+
+model training_plans {
+  plan_id     Int        @id @default(autoincrement())
+  coach_id    Int?
+  user_id     Int?
+  description String?    @db.VarChar(255)
+  video_links String?    @db.VarChar(255)
+  diet_plan   String?    @db.VarChar(255)
+  customers   customers? @relation(fields: [user_id], references: [user_id], onDelete: NoAction, onUpdate: NoAction, map: "training_plans_ibfk_2")
+  coaches     coaches?   @relation(fields: [coach_id], references: [user_id], onDelete: NoAction, onUpdate: NoAction, map: "training_plans_ibfk_3")
+
+  @@index([coach_id], map: "coach_id")
+  @@index([user_id], map: "user_id")
+}
+
+model training_schedules {
+  schedule_id Int        @id @default(autoincrement())
+  user_id     Int?
+  coach_id    Int?
+  title       String?    @db.VarChar(255)
+  date        DateTime?  @db.Date
+  start_time  DateTime?  @db.DateTime(0)
+  end_time    DateTime?  @db.DateTime(0)
+  description String?    @db.VarChar(255)
+  status      String?    @db.VarChar(255)
+  customers   customers? @relation(fields: [user_id], references: [user_id], onDelete: NoAction, onUpdate: NoAction, map: "training_schedules_ibfk_1")
+  coaches     coaches?   @relation(fields: [coach_id], references: [user_id], onDelete: NoAction, onUpdate: NoAction, map: "training_schedules_ibfk_2")
+
+  @@index([coach_id], map: "coach_id")
+  @@index([user_id], map: "user_id")
+}
+
+model healths {
+  health_id    Int    @id @default(autoincrement())
+  user_id      Int?
+  weight       Float? @db.Float
+  height       Float? @db.Float
+  step         Float? @db.Float
+  heartRate    Float? @db.Float
+  standHours   Float? @db.Float
+  exerciseTime Float? @db.Float
+  activeEnergy Float? @db.Float
+  customers    users? @relation(fields: [user_id], references: [user_id], onDelete: NoAction, onUpdate: NoAction, map: "healths_ibfk_1")
+
+  @@index([user_id], map: "user_id")
+}
