@@ -25,6 +25,7 @@ export class UserService {
           full_name: user.full_name,
           email: user.email,
           phone_number: user.phone_number,
+          gender: user.gender,
           date_of_birth: user.date_of_birth,
           avatar: user.avatar,
           role: user.role,
@@ -69,6 +70,7 @@ export class UserService {
           full_name: user.full_name,
           email: user.email,
           phone_number: user.phone_number,
+          gender: user.gender,
           date_of_birth: user.date_of_birth,
           avatar: user.avatar,
           role: user.role,
@@ -123,6 +125,7 @@ export class UserService {
           gender: createUserDto.gender,
           date_of_birth: createUserDto.date_of_birth,
           phone_number: createUserDto.phone_number,
+          avatar: createUserDto.avatar,
           role: createUserDto.role,
           created_by: userId,
         },
@@ -153,10 +156,13 @@ export class UserService {
         email: newUser.email,
         phone_number: newUser.phone_number,
         date_of_birth: newUser.date_of_birth,
+        gender: newUser.gender,
+        avatar: newUser.avatar,
         role: newUser.role,
       };
       return Response('Create user successfully!', HttpStatus.CREATED, result);
     } catch (error) {
+      console.log(error);
       return Response(
         'An error occurred during the process',
         HttpStatus.INTERNAL_SERVER_ERROR,
@@ -370,6 +376,29 @@ export class UserService {
       return Response('Upload avatar successfully!', HttpStatus.OK);
     } else {
       throw new HttpException('No user found', HttpStatus.NOT_FOUND);
+    }
+  }
+
+  async uploadMedia(photo_url: string) {
+    try {
+      if (!photo_url) {
+        throw new HttpException(
+          'No photo URL provided',
+          HttpStatus.BAD_REQUEST,
+        );
+      }
+
+      return Response(
+        'Upload media successfully!',
+        HttpStatus.CREATED,
+        photo_url,
+      );
+    } catch (error) {
+      console.error('Error uploading media:', error);
+      throw new HttpException(
+        'An error occurred during the upload process',
+        HttpStatus.INTERNAL_SERVER_ERROR,
+      );
     }
   }
 }

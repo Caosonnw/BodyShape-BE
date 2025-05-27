@@ -116,7 +116,7 @@ export class UserController {
 
   @Post('upload-avatar/:user_id')
   @ApiConsumes('multipart/form-data')
-  @UseInterceptors(FileInterceptor('image', uploadOptions))
+  @UseInterceptors(FileInterceptor('avatar', uploadOptions))
   @ApiBody({
     description: 'Upload avatar',
     type: UploadAvatarDto,
@@ -127,5 +127,19 @@ export class UserController {
   ) {
     const photo_url = file.filename;
     return this.userService.uploadAvatar(user_id, photo_url);
+  }
+
+  @Post('upload-media')
+  @ApiConsumes('multipart/form-data')
+  @UseInterceptors(FileInterceptor('avatar', uploadOptions))
+  @ApiBody({
+    description: 'Upload media',
+    type: UploadAvatarDto,
+  })
+  async uploadMedia(
+    @UploadedFile() file: Express.Multer.File,
+  ) {
+    const photo_url = file.filename;
+    return this.userService.uploadMedia(photo_url);
   }
 }

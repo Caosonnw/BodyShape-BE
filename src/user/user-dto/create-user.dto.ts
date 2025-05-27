@@ -34,6 +34,11 @@ export class CreateUserDto {
   @IsDateString()
   date_of_birth?: string;
 
+  @ApiPropertyOptional({ example: 'https://example.com/avatar.jpg' })
+  @IsOptional()
+  @IsString()
+  avatar?: string;
+
   @ApiPropertyOptional({ example: '0123123123' })
   @IsOptional()
   @IsString()
