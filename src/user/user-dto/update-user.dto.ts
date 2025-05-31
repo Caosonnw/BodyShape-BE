@@ -39,6 +39,11 @@ export class UpdateUserDto {
   @IsString()
   phone_number?: string;
 
+  @ApiPropertyOptional({ example: 'https://example.com/avatar.jpg' })
+  @IsOptional()
+  @IsString()
+  avatar?: string;
+
   @ApiPropertyOptional({ example: 'CUSTOMER' })
   @IsOptional()
   @IsString()

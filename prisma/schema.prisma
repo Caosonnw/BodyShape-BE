@@ -45,6 +45,7 @@ model coaches {
   specialization     String?              @db.VarChar(255)
   bio                String?              @db.VarChar(255)
   rating_avg         String?              @db.VarChar(255)
+  coach_customers    coach_customers[]
   users              users                @relation(fields: [user_id], references: [user_id], onDelete: NoAction, onUpdate: NoAction, map: "coaches_ibfk_1")
   reviews            reviews[]
   training_plans     training_plans[]
@@ -55,6 +56,7 @@ model customers {
   user_id            Int                  @id
   health_info        String?              @db.VarChar(255)
   goals              String?              @db.VarChar(255)
+  coach_customers    coach_customers[]
   users              users                @relation(fields: [user_id], references: [user_id], onDelete: NoAction, onUpdate: NoAction, map: "customers_ibfk_1")
   invoices           invoices[]
   membership_cards   membership_cards[]
@@ -199,4 +201,15 @@ model healths {
   customers    users? @relation(fields: [user_id], references: [user_id], onDelete: NoAction, onUpdate: NoAction, map: "healths_ibfk_1")
 
   @@index([user_id], map: "user_id")
+}
+
+model coach_customers {
+  coach_id    Int
+  customer_id Int
+  coaches     coaches   @relation(fields: [coach_id], references: [user_id], onDelete: NoAction, onUpdate: NoAction, map: "coach_customers_ibfk_1")
+  customers   customers @relation(fields: [customer_id], references: [user_id], onDelete: NoAction, onUpdate: NoAction, map: "coach_customers_ibfk_2")
+
+  @@id([coach_id, customer_id])
+  @@index([customer_id], map: "customer_id")
+  @@index([coach_id], map: "coach_id")
 }

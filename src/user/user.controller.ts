@@ -14,7 +14,13 @@ import {
   UseInterceptors,
 } from '@nestjs/common';
 import { UserService } from './user.service';
-import { ApiBearerAuth, ApiBody, ApiConsumes, ApiParam, ApiTags } from '@nestjs/swagger';
+import {
+  ApiBearerAuth,
+  ApiBody,
+  ApiConsumes,
+  ApiParam,
+  ApiTags,
+} from '@nestjs/swagger';
 import { ResponseInterceptor } from '@/common/interceptors/response.interceptor';
 import { JwtAuthGuard } from '@/auth/guards/ jwt-auth.guard';
 import { RolesGuard } from '@/auth/guards/roles/roles.guard';
@@ -62,6 +68,13 @@ export class UserController {
   @ApiParam({ name: 'user_id', description: 'User ID' })
   getUserById(@Param('user_id') user_id) {
     return this.userService.getUserById(user_id);
+  }
+
+  @Get('get-coach-customers/:user_id')
+  @ApiParam({ name: 'user_id', description: 'User ID' })
+  getCoachCustomers(@Param('user_id') user_id: string) {
+    const userId = parseInt(user_id);
+    return this.userService.getCoachCustomers(userId);
   }
 
   @ApiBearerAuth()
@@ -116,7 +129,7 @@ export class UserController {
 
   @Post('upload-avatar/:user_id')
   @ApiConsumes('multipart/form-data')
-  @UseInterceptors(FileInterceptor('avatar', uploadOptions))
+  @UseInterceptors(FileInterceptor('image', uploadOptions))
   @ApiBody({
     description: 'Upload avatar',
     type: UploadAvatarDto,
@@ -136,9 +149,7 @@ export class UserController {
     description: 'Upload media',
     type: UploadAvatarDto,
   })
-  async uploadMedia(
-    @UploadedFile() file: Express.Multer.File,
-  ) {
+  async uploadMedia(@UploadedFile() file: Express.Multer.File) {
     const photo_url = file.filename;
     return this.userService.uploadMedia(photo_url);
   }

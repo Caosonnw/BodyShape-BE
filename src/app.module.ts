@@ -8,6 +8,8 @@ import { UserModule } from '@/user/user.module';
 import { Module } from '@nestjs/common';
 import { ConfigModule } from '@nestjs/config';
 import { JwtStrategy } from 'src/auth/guards/strategies/jwt.strategy';
+import { SchedulesModule } from './schedules/schedules.module';
+import { CoachCustomersModule } from './coach-customers/coach-customers.module';
 
 @Module({
   imports: [
@@ -17,6 +19,8 @@ import { JwtStrategy } from 'src/auth/guards/strategies/jwt.strategy';
     PackagesModule,
     MebershipCardsModule,
     HealthModule,
+    SchedulesModule,
+    CoachCustomersModule,
   ],
   controllers: [AppController],
   providers: [AppService, JwtStrategy],

@@ -15,34 +15,96 @@ export class UserService {
     try {
       const users = await this.prisma.users.findMany({
         include: {
-          coaches: true,
-          customers: true,
+          coaches: {
+            include: {
+              coach_customers: {
+                include: {
+                  customers: {
+                    include: {
+                      users: true,
+                    },
+                  },
+                },
+              },
+            },
+          },
+          customers: {
+            include: {
+              coach_customers: {
+                include: {
+                  coaches: {
+                    include: {
+                      users: true,
+                    },
+                  },
+                },
+              },
+            },
+          },
         },
       });
+
       if (users && users.length > 0) {
-        const result = users.map((user) => ({
-          user_id: user.user_id,
-          full_name: user.full_name,
-          email: user.email,
-          phone_number: user.phone_number,
-          gender: user.gender,
-          date_of_birth: user.date_of_birth,
-          avatar: user.avatar,
-          role: user.role,
-          ...(user.role === Role.COACH
-            ? {
-                specialization: user.coaches?.specialization,
-                bio: user.coaches?.bio,
-                rating_avg: user.coaches?.rating_avg,
-              }
-            : {}),
-          ...(user.role === Role.CUSTOMER
-            ? {
-                health_info: user.customers?.health_info,
-                goals: user.customers?.goals,
-              }
-            : {}),
-        }));
+        const result = users.map((user) => {
+          if (user.role === Role.COACH) {
+            return {
+              user_id: user.user_id,
+              full_name: user.full_name,
+              email: user.email,
+              phone_number: user.phone_number,
+              gender: user.gender,
+              date_of_birth: user.date_of_birth,
+              avatar: user.avatar,
+              role: user.role,
+              specialization: user.coaches?.specialization,
+              bio: user.coaches?.bio,
+              rating_avg: user.coaches?.rating_avg,
+              coach_customers: user.coaches?.coach_customers.map((cc) => ({
+                customer_id: cc.customer_id,
+                customer_full_name: cc.customers?.users?.full_name,
+                customer_email: cc.customers?.users?.email,
+                customer_phone_number: cc.customers?.users?.phone_number,
+                customer_gender: cc.customers?.users?.gender,
+                customer_date_of_birth: cc.customers?.users?.date_of_birth,
+                customer_avatar: cc.customers?.users?.avatar,
+              })),
+            };
+          } else if (user.role === Role.CUSTOMER) {
+            return {
+              user_id: user.user_id,
+              full_name: user.full_name,
+              email: user.email,
+              phone_number: user.phone_number,
+              gender: user.gender,
+              date_of_birth: user.date_of_birth,
+              avatar: user.avatar,
+              role: user.role,
+              health_info: user.customers?.health_info,
+              goals: user.customers?.goals,
+              coach_customers: user.customers?.coach_customers.map((cc) => ({
+                coach_id: cc.coach_id,
+                coach_full_name: cc.coaches?.users?.full_name,
+                coach_email: cc.coaches?.users?.email,
+                coach_phone_number: cc.coaches?.users?.phone_number,
+                coach_gender: cc.coaches?.users?.gender,
+                coach_date_of_birth: cc.coaches?.users?.date_of_birth,
+                coach_avatar: cc.coaches?.users?.avatar,
+              })),
+            };
+          } else {
+            // Trường hợp role khác (ADMIN, OWNER...)
+            return {
+              user_id: user.user_id,
+              full_name: user.full_name,
+              email: user.email,
+              phone_number: user.phone_number,
+              gender: user.gender,
+              date_of_birth: user.date_of_birth,
+              avatar: user.avatar,
+              role: user.role,
+            };
+          }
+        });
         return Response('Get all users successfully!', HttpStatus.OK, result);
       } else {
         return Response('No user found!', HttpStatus.NOT_FOUND);
@@ -60,41 +122,214 @@ export class UserService {
       const user = await this.prisma.users.findUnique({
         where: { user_id: parseStringToNumber(user_id) },
         include: {
-          coaches: true,
-          customers: true,
+          coaches: {
+            include: {
+              coach_customers: {
+                include: {
+                  customers: {
+                    include: {
+                      users: true,
+                    },
+                  },
+                },
+              },
+            },
+          },
+          customers: {
+            include: {
+              coach_customers: {
+                include: {
+                  coaches: {
+                    include: {
+                      users: true,
+                    },
+                  },
+                },
+              },
+            },
+          },
         },
       });
       if (user) {
-        const result = {
-          user_id: user.user_id,
-          full_name: user.full_name,
-          email: user.email,
-          phone_number: user.phone_number,
-          gender: user.gender,
-          date_of_birth: user.date_of_birth,
-          avatar: user.avatar,
-          role: user.role,
-          ...(user.role === Role.COACH
-            ? {
-                specialization: user.coaches?.specialization,
-                bio: user.coaches?.bio,
-                rating_avg: user.coaches?.rating_avg,
-              }
-            : {}),
-          ...(user.role === Role.CUSTOMER
-            ? {
-                health_info: user.customers?.health_info,
-                goals: user.customers?.goals,
-              }
-            : {}),
-        };
-        return Response('Get user by id successfully!', HttpStatus.OK, result);
+        if (user.role === Role.COACH) {
+          const result = {
+            user_id: user.user_id,
+            full_name: user.full_name,
+            email: user.email,
+            phone_number: user.phone_number,
+            gender: user.gender,
+            date_of_birth: user.date_of_birth,
+            avatar: user.avatar,
+            role: user.role,
+            specialization: user.coaches?.specialization,
+            bio: user.coaches?.bio,
+            rating_avg: user.coaches?.rating_avg,
+            coach_customers: user.coaches?.coach_customers.map((cc) => ({
+              customer_id: cc.customer_id,
+              customer_full_name: cc.customers?.users?.full_name,
+              customer_email: cc.customers?.users?.email,
+              customer_phone_number: cc.customers?.users?.phone_number,
+              customer_gender: cc.customers?.users?.gender,
+              customer_date_of_birth: cc.customers?.users?.date_of_birth,
+              customer_avatar: cc.customers?.users?.avatar,
+            })),
+          };
+          return Response(
+            'Get user by id successfully!',
+            HttpStatus.OK,
+            result,
+          );
+        } else if (user.role === Role.CUSTOMER) {
+          const result = {
+            user_id: user.user_id,
+            full_name: user.full_name,
+            email: user.email,
+            phone_number: user.phone_number,
+            gender: user.gender,
+            date_of_birth: user.date_of_birth,
+            avatar: user.avatar,
+            role: user.role,
+            health_info: user.customers?.health_info,
+            goals: user.customers?.goals,
+            coach_customers: user.customers?.coach_customers.map((cc) => ({
+              coach_id: cc.coach_id,
+              coach_full_name: cc.coaches?.users?.full_name,
+              coach_email: cc.coaches?.users?.email,
+              coach_phone_number: cc.coaches?.users?.phone_number,
+              coach_gender: cc.coaches?.users?.gender,
+              coach_date_of_birth: cc.coaches?.users?.date_of_birth,
+              coach_avatar: cc.coaches?.users?.avatar,
+            })),
+          };
+          return Response(
+            'Get user by id successfully!',
+            HttpStatus.OK,
+            result,
+          );
+        } else {
+          // role khác
+          const result = {
+            user_id: user.user_id,
+            full_name: user.full_name,
+            email: user.email,
+            phone_number: user.phone_number,
+            gender: user.gender,
+            date_of_birth: user.date_of_birth,
+            avatar: user.avatar,
+            role: user.role,
+          };
+          return Response(
+            'Get user by id successfully!',
+            HttpStatus.OK,
+            result,
+          );
+        }
       } else {
         return Response('User not found!', HttpStatus.NOT_FOUND);
       }
     } catch (error) {
       return Response(
         'An error occurred during the process',
+        HttpStatus.INTERNAL_SERVER_ERROR,
+      );
+    }
+  }
+
+  async getCoachCustomers(user_id: number) {
+    try {
+      const user = await this.prisma.users.findUnique({
+        where: { user_id },
+        select: { role: true },
+      });
+
+      if (!user) {
+        return Response('User not found!', HttpStatus.NOT_FOUND);
+      }
+
+      if (user.role === 'COACH') {
+        const customers = await this.prisma.coach_customers.findMany({
+          where: { coach_id: user_id },
+          include: {
+            customers: {
+              include: {
+                users: {
+                  select: {
+                    user_id: true,
+                    full_name: true,
+                    email: true,
+                    phone_number: true,
+                    gender: true,
+                    date_of_birth: true,
+                    avatar: true,
+                  },
+                },
+              },
+            },
+          },
+        });
+
+        const result = customers.map((cc) => ({
+          user_id: cc.customer_id,
+          full_name: cc.customers?.users?.full_name,
+          email: cc.customers?.users?.email,
+          phone_number: cc.customers?.users?.phone_number,
+          gender: cc.customers?.users?.gender,
+          date_of_birth: cc.customers?.users?.date_of_birth,
+          avatar: cc.customers?.users?.avatar,
+        }));
+
+        return Response(
+          'Get coach customers successfully!',
+          HttpStatus.OK,
+          result,
+        );
+      } else if (user.role === 'CUSTOMER') {
+        const coaches = await this.prisma.coach_customers.findMany({
+          where: { customer_id: user_id },
+          include: {
+            coaches: {
+              include: {
+                users: {
+                  select: {
+                    user_id: true,
+                    full_name: true,
+                    email: true,
+                    phone_number: true,
+                    gender: true,
+                    date_of_birth: true,
+                    avatar: true,
+                  },
+                },
+              },
+            },
+          },
+        });
+
+        const result = coaches.map((cc) => ({
+          user_id: cc.coach_id,
+          full_name: cc.coaches?.users?.full_name,
+          email: cc.coaches?.users?.email,
+          phone_number: cc.coaches?.users?.phone_number,
+          gender: cc.coaches?.users?.gender,
+          date_of_birth: cc.coaches?.users?.date_of_birth,
+          avatar: cc.coaches?.users?.avatar,
+        }));
+
+        return Response(
+          'Get customer coaches successfully!',
+          HttpStatus.OK,
+          result,
+        );
+      } else {
+        return Response(
+          'User role does not support this operation',
+          HttpStatus.BAD_REQUEST,
+        );
+      }
+    } catch (error) {
+      console.error(error);
+      return Response(
+        'An error occurred while fetching related users',
         HttpStatus.INTERNAL_SERVER_ERROR,
       );
     }
@@ -248,6 +483,7 @@ export class UserService {
           gender: updateUserDto.gender,
           date_of_birth: updateUserDto.date_of_birth,
           phone_number: updateUserDto.phone_number,
+          avatar: updateUserDto.avatar,
           role: updateUserDto.role,
         },
       });

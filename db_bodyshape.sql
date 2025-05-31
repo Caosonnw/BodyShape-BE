@@ -4,7 +4,7 @@
 -- https://tableplus.com/
 --
 -- Database: db_bodyshape
--- Generation Time: 2025-05-26 14:13:10.6960
+-- Generation Time: 2025-05-27 21:34:41.9490
 -- -------------------------------------------------------------
 
 
@@ -26,6 +26,16 @@ CREATE TABLE `checkins` (
   PRIMARY KEY (`checkin_id`),
   KEY `user_id` (`user_id`),
   CONSTRAINT `checkins_ibfk_1` FOREIGN KEY (`user_id`) REFERENCES `users` (`user_id`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
+
+CREATE TABLE `coach_customers` (
+  `coach_id` int NOT NULL,
+  `customer_id` int NOT NULL,
+  PRIMARY KEY (`coach_id`,`customer_id`),
+  KEY `customer_id` (`customer_id`),
+  KEY `coach_id` (`coach_id`) USING BTREE,
+  CONSTRAINT `coach_customers_ibfk_1` FOREIGN KEY (`coach_id`) REFERENCES `coaches` (`user_id`),
+  CONSTRAINT `coach_customers_ibfk_2` FOREIGN KEY (`customer_id`) REFERENCES `customers` (`user_id`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
 
 CREATE TABLE `coaches` (
@@ -196,13 +206,17 @@ CREATE TABLE `users` (
   PRIMARY KEY (`user_id`),
   KEY `created_by` (`created_by`),
   CONSTRAINT `users_ibfk_1` FOREIGN KEY (`created_by`) REFERENCES `users` (`user_id`)
-) ENGINE=InnoDB AUTO_INCREMENT=5 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
+) ENGINE=InnoDB AUTO_INCREMENT=10 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
 
 INSERT INTO `coaches` (`user_id`, `specialization`, `bio`, `rating_avg`) VALUES
-(3, NULL, NULL, NULL);
+(3, NULL, NULL, NULL),
+(5, NULL, NULL, NULL),
+(6, NULL, NULL, NULL);
 
 INSERT INTO `customers` (`user_id`, `health_info`, `goals`) VALUES
-(4, NULL, NULL);
+(4, NULL, NULL),
+(8, NULL, NULL),
+(9, NULL, NULL);
 
 INSERT INTO `healths` (`health_id`, `user_id`, `weight`, `height`, `step`, `heartRate`, `standHours`, `exerciseTime`, `activeEnergy`) VALUES
 (2, 1, 58, 1.68, 225, 98.7137, 0, 1, 3.856);
@@ -217,10 +231,15 @@ INSERT INTO `packages` (`package_id`, `package_name`, `description`, `price`, `d
 (7, 'Family Package', 'Gói cho nhóm gia đình, giảm giá khi đăng ký từ 2 người trở lên', 2500000, 30);
 
 INSERT INTO `users` (`user_id`, `email`, `password`, `full_name`, `gender`, `date_of_birth`, `phone_number`, `avatar`, `role`, `created_by`, `refresh_token`) VALUES
-(1, 'son@gmail.com', '$2b$10$R/wwoI3iQ4zxlhyI2hS8kez9CttChYThFXAw8/R3U5jalh5aB9wja', 'Owner', 1, '2004-04-15', '0336114129', '1748243169165_418232525_Goofy_Dog.jpeg', 'OWNER', NULL, 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VyX2lkIjoxLCJyb2xlIjoiT1dORVIiLCJrZXkiOiIzS2lYN0YiLCJpYXQiOjE3NDgyNDMzNzIsImV4cCI6MTc0ODMyOTc3Mn0.IKT_0ydeiTWWLoN9td43LUsdCVizwX-DEbQM50nx_Ds'),
+(1, 'son@gmail.com', '$2b$10$R/wwoI3iQ4zxlhyI2hS8kez9CttChYThFXAw8/R3U5jalh5aB9wja', 'Owner', 1, '2004-04-15', '0336114129', '1748243169165_418232525_Goofy_Dog.jpeg', 'OWNER', NULL, 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VyX2lkIjoxLCJyb2xlIjoiT1dORVIiLCJrZXkiOiJpVkV2MHMiLCJpYXQiOjE3NDgzNTQyNzQsImV4cCI6MTc0ODQ0MDY3NH0.mVjqnBNljnIOzi6OIDSHIoxL1x1kQ1gDU_aZofHJqCQ'),
 (2, 'test@gmail.com', '$2b$10$Jy8aqlRe7QNOTxVn5HSUYuhqkbqhp6kE3apTmM2iVUwbtrO2YZ4s.', 'test', 1, '2025-05-18', '0123123123', NULL, 'ADMIN', NULL, 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VyX2lkIjoyLCJyb2xlIjoiQ1VTVE9NRVIiLCJrZXkiOiJiYmFjNEciLCJpYXQiOjE3NDc1ODEzMzgsImV4cCI6MTc0NzY2NzczOH0.HUbBYuk6DMf_TGy9tzu5uTJcVac-ccOBSYuy7eK8SJo'),
-(3, 'sun@gmail.com', '$2b$10$gXkXsRDMcMAhYBa15aFx8..BA4FzYf0pLtQ.aUWc6Mop70DECG.cu', 'sun', 0, '2025-05-18', '0987654321', NULL, 'COACH', NULL, 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VyX2lkIjozLCJyb2xlIjoiQ1VTVE9NRVIiLCJrZXkiOiJzMWg1V3YiLCJpYXQiOjE3NDc1ODI3ODcsImV4cCI6MTc0NzY2OTE4N30.a4IP7HQva8dUnHYiIMBr5uB9KBD-EcNQC8dAp1Sy2UQ'),
-(4, 'test123@gmail.com', '$2b$10$s/v9sBAlu0RkqJ.LPtPuoOelTev2hrVMmroZe25yVVRJAtAfkYJjC', 'Nguyen Van A', 1, '2000-01-01', '0123123123', NULL, 'CUSTOMER', 1, 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VyX2lkIjo0LCJyb2xlIjoiQ1VTVE9NRVIiLCJrZXkiOiJqT1BNdmIiLCJpYXQiOjE3NDc1ODc4MzEsImV4cCI6MTc0NzY3NDIzMX0.gWggxKd9Dr8vP97iOYOL2frqvb-zezJErEicNBdg8nA');
+(3, 'sun@gmail.com', '$2b$10$gXkXsRDMcMAhYBa15aFx8..BA4FzYf0pLtQ.aUWc6Mop70DECG.cu', 'sun123', 0, '2025-05-18', '0987654321', NULL, 'COACH', NULL, 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VyX2lkIjozLCJyb2xlIjoiQ1VTVE9NRVIiLCJrZXkiOiJzMWg1V3YiLCJpYXQiOjE3NDc1ODI3ODcsImV4cCI6MTc0NzY2OTE4N30.a4IP7HQva8dUnHYiIMBr5uB9KBD-EcNQC8dAp1Sy2UQ'),
+(4, 'test123@gmail.com', '$2b$10$s/v9sBAlu0RkqJ.LPtPuoOelTev2hrVMmroZe25yVVRJAtAfkYJjC', 'Nguyen Van A', 1, '2000-01-01', '0123123123', NULL, 'CUSTOMER', 1, 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VyX2lkIjo0LCJyb2xlIjoiQ1VTVE9NRVIiLCJrZXkiOiJqT1BNdmIiLCJpYXQiOjE3NDc1ODc4MzEsImV4cCI6MTc0NzY3NDIzMX0.gWggxKd9Dr8vP97iOYOL2frqvb-zezJErEicNBdg8nA'),
+(5, 'vikimavir@mailinator.com', '$2b$10$.8EA.9Sab0WEm/1cZhlZk.PtmLJIR1fnXK9SpcrB7lKSkk9kzdkAe', 'Harriet Heath', 1, '2000-05-26', '0625589439', NULL, 'COACH', 1, NULL),
+(6, 'halo@gmail.com', '$2b$10$g6o6zWmu9vdfs2vVIJnAfOHqn3LyXbfbnatLj.DX4KJuFqfhKDL52', 'Halo Hola', 1, '2000-03-01', '0456789123', '1748277790479_475466991_cute-raccoon-d-cartoon.png', 'COACH', 1, NULL),
+(7, 'spiderman@gmail.com', '$2b$10$nRSfiGwYAKmjE/NGfgVmyuxAbug/gEdsY3A5Eoq4dx0e.YHA.f2/e', 'Spider Man', 1, '1999-06-30', '0123918412', '1748278050639_707057150_spiderMan.png', 'ADMIN', 1, NULL),
+(8, 'hau@gmail.com', '$2b$10$FYHzK70Dpfanxrpww2DyV..r.M1CUBQP5U2yhkCqxVYsNAOPt33V6', 'Dưa Văn Hấu', 1, '2001-02-08', '0981234675', '1748278142241_552433402_Cute_Memes.jpeg', 'CUSTOMER', 1, NULL),
+(9, 'cangao@gmail.com', '$2b$10$Kk.iyPVGVd4OMv06xN7m3.USLq0g4A5AxQDBL52BayzkltlspVVgy', 'Cá Ngáo', 0, '1995-04-23', '0413568823', '1748279735717_13768586_cangao.png', 'CUSTOMER', 1, NULL);
 
 
 
