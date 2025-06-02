@@ -70,11 +70,17 @@ export class UserController {
     return this.userService.getUserById(user_id);
   }
 
-  @Get('get-coach-customers/:user_id')
-  @ApiParam({ name: 'user_id', description: 'User ID' })
-  getCoachCustomers(@Param('user_id') user_id: string) {
-    const userId = parseInt(user_id);
-    return this.userService.getCoachCustomers(userId);
+  @ApiBearerAuth()
+  @Get('get-coach-customers')
+  @UseGuards(JwtAuthGuard, RolesGuard)
+  @Roles(UserRole.Owner, UserRole.ADMIN, UserRole.COACH, UserRole.CUSTOMER)
+  async getCoachCustomers(@Req() req) {
+    const userId = req.user.user_id;
+    if (userId) {
+      return this.userService.getCoachCustomers(userId);
+    } else {
+      return Response('No user found!', HttpStatus.NOT_FOUND);
+    }
   }
 
   @ApiBearerAuth()
