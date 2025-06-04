@@ -1,35 +1,54 @@
+import { ApiPropertyOptional } from '@nestjs/swagger';
 import { IsDateString, IsInt, IsOptional, IsString } from 'class-validator';
 
 export class CreateTrainingScheduleDto {
+  @ApiPropertyOptional({ example: 1, description: 'Customer ID' })
   @IsOptional()
   @IsInt()
-  user_id?: number;
+  customer_id?: number;
 
-  @IsOptional()
-  @IsInt()
-  coach_id?: number;
+  // @ApiPropertyOptional({ example: 2, description: 'Coach ID' })
+  // @IsOptional()
+  // @IsInt()
+  // coach_id?: number;
 
+  @ApiPropertyOptional({
+    example: 'Morning Workout',
+    description: 'Schedule Title',
+  })
   @IsOptional()
   @IsString()
   title?: string;
 
+  @ApiPropertyOptional({
+    example: '2025-06-01T08:00:00.000Z',
+    description: 'Start Date',
+  })
   @IsOptional()
   @IsDateString()
-  date?: string;
+  start_date?: string;
 
+  @ApiPropertyOptional({
+    example: '2025-06-03T08:30:00.000Z',
+    description: 'End Date',
+  })
   @IsOptional()
   @IsDateString()
-  start_time?: string;
+  end_date?: string;
 
-  @IsOptional()
-  @IsDateString()
-  end_time?: string;
-
+  @ApiPropertyOptional({
+    example: 'Morning workout session for customer',
+    description: 'Description of the schedule',
+  })
   @IsOptional()
   @IsString()
   description?: string;
 
+  @ApiPropertyOptional({
+    example: 'Red',
+    description: 'Status of the schedule',
+  })
   @IsOptional()
   @IsString()
-  status?: string;
+  color?: string;
 }

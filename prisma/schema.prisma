@@ -94,28 +94,28 @@ model equipments {
 
 model invoices {
   invoice_id   Int        @id @default(autoincrement())
-  user_id      Int?
+  customer_id  Int?
   total_amount Int?
   issued_date  DateTime?  @db.DateTime(0)
   due_date     DateTime?  @db.DateTime(0)
   status       String?    @db.VarChar(255)
-  customers    customers? @relation(fields: [user_id], references: [user_id], onDelete: NoAction, onUpdate: NoAction, map: "invoices_ibfk_1")
+  customers    customers? @relation(fields: [customer_id], references: [user_id], onDelete: NoAction, onUpdate: NoAction, map: "invoices_ibfk_1")
 
-  @@index([user_id], map: "user_id")
+  @@index([customer_id], map: "user_id")
 }
 
 model membership_cards {
-  card_id    Int        @id @default(autoincrement())
-  user_id    Int?
-  package_id Int?
-  start_date DateTime?  @db.DateTime(0)
-  end_date   DateTime?  @db.DateTime(0)
-  status     String?    @db.VarChar(30)
-  packages   packages?  @relation(fields: [package_id], references: [package_id], onDelete: NoAction, onUpdate: NoAction, map: "membership_cards_ibfk_2")
-  customers  customers? @relation(fields: [user_id], references: [user_id], onDelete: NoAction, onUpdate: NoAction, map: "membership_cards_ibfk_3")
+  card_id     Int        @id @default(autoincrement())
+  customer_id Int?
+  package_id  Int?
+  start_date  DateTime?  @db.DateTime(0)
+  end_date    DateTime?  @db.DateTime(0)
+  status      String?    @db.VarChar(30)
+  packages    packages?  @relation(fields: [package_id], references: [package_id], onDelete: NoAction, onUpdate: NoAction, map: "membership_cards_ibfk_2")
+  customers   customers? @relation(fields: [customer_id], references: [user_id], onDelete: NoAction, onUpdate: NoAction, map: "membership_cards_ibfk_3")
 
   @@index([package_id], map: "package_id")
-  @@index([user_id], map: "user_id")
+  @@index([customer_id], map: "user_id")
 }
 
 model packages {
@@ -130,17 +130,17 @@ model packages {
 
 model payments {
   payment_id   Int        @id @default(autoincrement())
-  user_id      Int?
+  customer_id  Int?
   package_id   Int?
   amount       Int?
   payment_date DateTime?  @db.DateTime(0)
   method       String?    @db.VarChar(255)
   status       String?    @db.VarChar(255)
   packages     packages?  @relation(fields: [package_id], references: [package_id], onDelete: NoAction, onUpdate: NoAction, map: "payments_ibfk_2")
-  customers    customers? @relation(fields: [user_id], references: [user_id], onDelete: NoAction, onUpdate: NoAction, map: "payments_ibfk_3")
+  customers    customers? @relation(fields: [customer_id], references: [user_id], onDelete: NoAction, onUpdate: NoAction, map: "payments_ibfk_3")
 
   @@index([package_id], map: "package_id")
-  @@index([user_id], map: "user_id")
+  @@index([customer_id], map: "user_id")
 }
 
 model reviews {
@@ -173,19 +173,18 @@ model training_plans {
 
 model training_schedules {
   schedule_id Int        @id @default(autoincrement())
-  user_id     Int?
+  customer_id Int?
   coach_id    Int?
   title       String?    @db.VarChar(255)
-  date        DateTime?  @db.Date
-  start_time  DateTime?  @db.DateTime(0)
-  end_time    DateTime?  @db.DateTime(0)
+  start_date  DateTime?  @db.DateTime(0)
+  end_date    DateTime?  @db.DateTime(0)
   description String?    @db.VarChar(255)
-  status      String?    @db.VarChar(255)
-  customers   customers? @relation(fields: [user_id], references: [user_id], onDelete: NoAction, onUpdate: NoAction, map: "training_schedules_ibfk_1")
+  color       String?    @db.VarChar(255)
+  customers   customers? @relation(fields: [customer_id], references: [user_id], onDelete: NoAction, onUpdate: NoAction, map: "training_schedules_ibfk_1")
   coaches     coaches?   @relation(fields: [coach_id], references: [user_id], onDelete: NoAction, onUpdate: NoAction, map: "training_schedules_ibfk_2")
 
   @@index([coach_id], map: "coach_id")
-  @@index([user_id], map: "user_id")
+  @@index([customer_id], map: "user_id")
 }
 
 model healths {

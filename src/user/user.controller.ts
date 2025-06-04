@@ -71,19 +71,6 @@ export class UserController {
   }
 
   @ApiBearerAuth()
-  @Get('get-coach-customers')
-  @UseGuards(JwtAuthGuard, RolesGuard)
-  @Roles(UserRole.Owner, UserRole.ADMIN, UserRole.COACH, UserRole.CUSTOMER)
-  async getCoachCustomers(@Req() req) {
-    const userId = req.user.user_id;
-    if (userId) {
-      return this.userService.getCoachCustomers(userId);
-    } else {
-      return Response('No user found!', HttpStatus.NOT_FOUND);
-    }
-  }
-
-  @ApiBearerAuth()
   @UseGuards(JwtAuthGuard, RolesGuard)
   @Roles(UserRole.Owner, UserRole.ADMIN)
   @Post('create-user')
