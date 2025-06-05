@@ -409,11 +409,23 @@ export class UserService {
 
   async deleteUser(user_id) {
     try {
-      const user = await this.prisma.users.findUnique({
+      const user = await this.prisma.users.findFirst({
         where: { user_id: parseStringToNumber(user_id) },
       });
       if (!user) {
         return Response('User not found!', HttpStatus.NOT_FOUND);
+      }
+
+      if (user.role === Role.CUSTOMER) {
+        // Xóa record trong customers
+        await this.prisma.customers.deleteMany({
+          where: { user_id: parseStringToNumber(user_id) },
+        });
+      } else if (user.role === Role.COACH) {
+        // Xóa record trong coaches
+        await this.prisma.coaches.deleteMany({
+          where: { user_id: parseStringToNumber(user_id) },
+        });
       }
 
       await this.prisma.users.delete({
@@ -422,6 +434,7 @@ export class UserService {
 
       return Response('Delete user successfully!', HttpStatus.OK);
     } catch (error) {
+      console.log(error);
       return Response(
         'An error occurred during the process',
         HttpStatus.INTERNAL_SERVER_ERROR,

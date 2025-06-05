@@ -28,7 +28,7 @@ export class PackagesController {
   constructor(private readonly packagesService: PackagesService) {}
 
   @Get('/get-all-packages')
-  getAll() {
+  async getAll() {
     return this.packagesService.getAllPackages();
   }
 
@@ -40,8 +40,8 @@ export class PackagesController {
   @ApiBearerAuth()
   @UseGuards(JwtAuthGuard, RolesGuard)
   @Roles(UserRole.Owner, UserRole.ADMIN)
-  @Post('create-package')
-  create(@Body() createPackageDto: CreatePackageDto) {
+  @Post('/create-package')
+  async create(@Body() createPackageDto: CreatePackageDto) {
     return this.packagesService.createPackage(createPackageDto);
   }
 
@@ -49,7 +49,7 @@ export class PackagesController {
   @UseGuards(JwtAuthGuard, RolesGuard)
   @Roles(UserRole.Owner, UserRole.ADMIN)
   @Put('/update-package/:package_id')
-  update(
+  async updatePackage(
     @Param('package_id', ParseIntPipe) package_id: number,
     @Body() updatePackageDto: UpdatePackageDto,
   ) {
@@ -60,7 +60,7 @@ export class PackagesController {
   @UseGuards(JwtAuthGuard, RolesGuard)
   @Roles(UserRole.Owner, UserRole.ADMIN)
   @Delete('/delete-package/:package_id')
-  delete(@Param('package_id', ParseIntPipe) package_id: number) {
+  async deletePackage(@Param('package_id', ParseIntPipe) package_id: number) {
     return this.packagesService.deletePackage(package_id);
   }
 }
