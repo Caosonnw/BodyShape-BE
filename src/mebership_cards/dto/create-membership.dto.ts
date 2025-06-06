@@ -8,9 +8,9 @@ import {
 } from 'class-validator';
 
 export enum MembershipStatus {
-  ACTIVE = 'active',
-  INACTIVE = 'inactive',
-  EXPIRED = 'expired',
+  ACTIVE = 'ACTIVE',
+  INACTIVE = 'INACTIVE',
+  EXPIRED = 'EXPIRED',
 }
 
 export class CreateMembershipCardDto {

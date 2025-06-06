@@ -9,14 +9,6 @@ import {
 } from 'class-validator';
 
 export class UpdateMembershipCardDto {
-  // @ApiProperty({
-  //   description: 'The ID of the membership card',
-  //   example: 1,
-  // })
-  // @IsInt()
-  // @IsPositive()
-  // card_id: number;
-
   @ApiProperty({
     description: 'The ID of the customer',
     example: 1,
@@ -58,7 +50,7 @@ export class UpdateMembershipCardDto {
   @ApiProperty({
     description: 'The status of the membership card',
     enum: MembershipStatus,
-    example: MembershipStatus.EXPIRED,
+    example: MembershipStatus.INACTIVE,
     required: false,
   })
   @IsEnum(MembershipStatus)
