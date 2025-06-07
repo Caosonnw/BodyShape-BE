@@ -235,6 +235,75 @@ export class UserService {
     }
   }
 
+  async getUserRoleCoach() {
+    try {
+      const user = await this.prisma.users.findMany({
+        where: { role: Role.COACH },
+        select: {
+          user_id: true,
+          full_name: true,
+          email: true,
+          phone_number: true,
+          date_of_birth: true,
+          gender: true,
+          avatar: true,
+          role: true,
+          coaches: {
+            select: {
+              specialization: true,
+              bio: true,
+              rating_avg: true,
+            },
+          },
+        },
+      });
+
+      return Response('Get user role coach successfully!', HttpStatus.OK, user);
+    } catch (error) {
+      console.error('Error fetching user role coach:', error);
+      return Response(
+        'An error occurred while fetching user role coach',
+        HttpStatus.INTERNAL_SERVER_ERROR,
+      );
+    }
+  }
+
+  async getUserRoleCustomer() {
+    try {
+      const user = await this.prisma.users.findMany({
+        where: { role: Role.CUSTOMER },
+        select: {
+          user_id: true,
+          full_name: true,
+          email: true,
+          phone_number: true,
+          date_of_birth: true,
+          gender: true,
+          avatar: true,
+          role: true,
+          customers: {
+            select: {
+              goals: true,
+              health_info: true,
+            },
+          },
+        },
+      });
+
+      return Response(
+        'Get user role customer successfully!',
+        HttpStatus.OK,
+        user,
+      );
+    } catch (error) {
+      console.error('Error fetching user role customer:', error);
+      return Response(
+        'An error occurred while fetching user role customer',
+        HttpStatus.INTERNAL_SERVER_ERROR,
+      );
+    }
+  }
+
   async createUser(userId, createUserDto: CreateUserDto) {
     try {
       // Kiểm tra email đã tồn tại chưa (nếu có truyền email)

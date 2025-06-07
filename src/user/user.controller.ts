@@ -5,6 +5,7 @@ import {
   Get,
   HttpStatus,
   Param,
+  ParseIntPipe,
   Patch,
   Post,
   Put,
@@ -68,6 +69,22 @@ export class UserController {
   @ApiParam({ name: 'user_id', description: 'User ID' })
   getUserById(@Param('user_id') user_id) {
     return this.userService.getUserById(user_id);
+  }
+
+  @ApiBearerAuth()
+  @UseGuards(JwtAuthGuard, RolesGuard)
+  @Roles(UserRole.Owner, UserRole.ADMIN, UserRole.COACH, UserRole.CUSTOMER)
+  @Get('get-user-role-coach')
+  async getUserRoleCoach() {
+    return this.userService.getUserRoleCoach();
+  }
+
+  @ApiBearerAuth()
+  @UseGuards(JwtAuthGuard, RolesGuard)
+  @Roles(UserRole.Owner, UserRole.ADMIN, UserRole.COACH, UserRole.CUSTOMER)
+  @Get('get-user-role-customer')
+  async getUserRoleCustomer() {
+    return this.userService.getUserRoleCustomer();
   }
 
   @ApiBearerAuth()

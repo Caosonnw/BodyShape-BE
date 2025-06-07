@@ -7,6 +7,7 @@ import { CreateMembershipCardDto } from '@/mebership_cards/dto/create-membership
 import {
   Body,
   Controller,
+  Delete,
   Get,
   Param,
   ParseIntPipe,
@@ -91,5 +92,17 @@ export class MebershipCardsController {
       cardId,
       updateMembershipCardDTO,
     );
+  }
+
+  @ApiBearerAuth()
+  @UseGuards(JwtAuthGuard, RolesGuard)
+  @Roles(UserRole.Owner, UserRole.ADMIN, UserRole.COACH)
+  @Delete('delete-membership-card/:card_id')
+  @ApiParam({
+    name: 'card_id',
+    description: 'Membership Card ID',
+  })
+  async deleteMembershipCard(@Param('card_id', ParseIntPipe) cardId: number) {
+    return await this.mebershipCardsService.deleteMembershipCard(cardId);
   }
 }

@@ -203,4 +203,48 @@ export class MebershipCardsService {
       );
     }
   }
+
+  async deleteMembershipCard(cardId: number) {
+    try {
+      const membershipCard = await this.prisma.membership_cards.findFirst({
+        where: { card_id: cardId },
+      });
+      if (!membershipCard) {
+        return Response('Membership card not found!', HttpStatus.NOT_FOUND);
+      }
+      
+      const customerExists = await this.prisma.users.findFirst({
+        where: {
+          customers: {
+            user_id: membershipCard.customer_id,
+          },
+        },
+      });
+      if (!customerExists) {
+        return Response('Customer not found!', HttpStatus.NOT_FOUND);
+      }
+
+      const packageExists = await this.prisma.packages.findFirst({
+        where: { package_id: membershipCard.package_id },
+      });
+      if (!packageExists) {
+        return Response('Package not found!', HttpStatus.NOT_FOUND);
+      }
+
+      const deletedMembershipCard = await this.prisma.membership_cards.delete({
+        where: { card_id: cardId },
+      });
+      return Response(
+        'Delete membership card successfully!',
+        HttpStatus.OK,
+        deletedMembershipCard,
+      );
+    } catch (error) {
+      console.log(error);
+      return Response(
+        'Failed to delete membership card!',
+        HttpStatus.INTERNAL_SERVER_ERROR,
+      );
+    }
+  }
 }
