@@ -11,6 +11,7 @@ import { JwtStrategy } from 'src/auth/guards/strategies/jwt.strategy';
 import { SchedulesModule } from './schedules/schedules.module';
 import { CoachCustomersModule } from './coach-customers/coach-customers.module';
 import { EquipmentsModule } from './equipments/equipments.module';
+import { ChatModule } from './chat/chat.module';
 
 @Module({
   imports: [
@@ -23,6 +24,7 @@ import { EquipmentsModule } from './equipments/equipments.module';
     SchedulesModule,
     CoachCustomersModule,
     EquipmentsModule,
+    ChatModule,
   ],
   controllers: [AppController],
   providers: [AppService, JwtStrategy],
