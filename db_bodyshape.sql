@@ -4,7 +4,7 @@
 -- https://tableplus.com/
 --
 -- Database: db_bodyshape
--- Generation Time: 2025-06-06 22:11:54.9940
+-- Generation Time: 2025-06-16 11:10:51.1860
 -- -------------------------------------------------------------
 
 
@@ -81,6 +81,16 @@ CREATE TABLE `equipments` (
   PRIMARY KEY (`equipment_id`)
 ) ENGINE=InnoDB AUTO_INCREMENT=9 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
 
+CREATE TABLE `exercises` (
+  `exercise_id` int NOT NULL AUTO_INCREMENT,
+  `exercises_name` varchar(100) CHARACTER SET utf8mb4 COLLATE utf8mb4_0900_ai_ci DEFAULT NULL,
+  `description` varchar(255) DEFAULT NULL,
+  `muscle_group` varchar(50) DEFAULT NULL,
+  `equipment_needed` varchar(255) DEFAULT NULL,
+  `video_link` varchar(255) DEFAULT NULL,
+  PRIMARY KEY (`exercise_id`)
+) ENGINE=InnoDB AUTO_INCREMENT=6 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
+
 CREATE TABLE `healths` (
   `health_id` int NOT NULL AUTO_INCREMENT,
   `user_id` int DEFAULT NULL,
@@ -120,7 +130,7 @@ CREATE TABLE `membership_cards` (
   KEY `user_id` (`customer_id`),
   CONSTRAINT `membership_cards_ibfk_2` FOREIGN KEY (`package_id`) REFERENCES `packages` (`package_id`),
   CONSTRAINT `membership_cards_ibfk_3` FOREIGN KEY (`customer_id`) REFERENCES `customers` (`user_id`)
-) ENGINE=InnoDB AUTO_INCREMENT=4 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
+) ENGINE=InnoDB AUTO_INCREMENT=5 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
 
 CREATE TABLE `packages` (
   `package_id` int NOT NULL AUTO_INCREMENT,
@@ -160,19 +170,34 @@ CREATE TABLE `reviews` (
   CONSTRAINT `reviews_ibfk_4` FOREIGN KEY (`coach_id`) REFERENCES `coaches` (`user_id`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
 
+CREATE TABLE `training_plan_exercises` (
+  `planExc_id` int NOT NULL AUTO_INCREMENT,
+  `plan_id` int DEFAULT NULL,
+  `exercise_id` int DEFAULT NULL,
+  `day_number` int DEFAULT NULL,
+  `sets` int DEFAULT NULL,
+  `reps` int DEFAULT NULL,
+  `weight` float DEFAULT NULL,
+  `rest_time` int DEFAULT NULL,
+  PRIMARY KEY (`planExc_id`),
+  KEY `plan_id` (`plan_id`),
+  KEY `exercise_id` (`exercise_id`),
+  CONSTRAINT `training_plan_exercises_ibfk_1` FOREIGN KEY (`plan_id`) REFERENCES `training_plans` (`plan_id`),
+  CONSTRAINT `training_plan_exercises_ibfk_2` FOREIGN KEY (`exercise_id`) REFERENCES `exercises` (`exercise_id`)
+) ENGINE=InnoDB AUTO_INCREMENT=11 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
+
 CREATE TABLE `training_plans` (
   `plan_id` int NOT NULL AUTO_INCREMENT,
   `coach_id` int DEFAULT NULL,
   `user_id` int DEFAULT NULL,
   `description` varchar(255) DEFAULT NULL,
-  `video_links` varchar(255) DEFAULT NULL,
   `diet_plan` varchar(255) DEFAULT NULL,
   PRIMARY KEY (`plan_id`),
   KEY `user_id` (`user_id`),
   KEY `coach_id` (`coach_id`),
   CONSTRAINT `training_plans_ibfk_2` FOREIGN KEY (`user_id`) REFERENCES `customers` (`user_id`),
   CONSTRAINT `training_plans_ibfk_3` FOREIGN KEY (`coach_id`) REFERENCES `coaches` (`user_id`)
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
+) ENGINE=InnoDB AUTO_INCREMENT=2 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
 
 CREATE TABLE `training_schedules` (
   `schedule_id` int NOT NULL AUTO_INCREMENT,
@@ -207,10 +232,29 @@ CREATE TABLE `users` (
   CONSTRAINT `users_ibfk_1` FOREIGN KEY (`created_by`) REFERENCES `users` (`user_id`)
 ) ENGINE=InnoDB AUTO_INCREMENT=11 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
 
+CREATE TABLE `workout_logs` (
+  `log_id` int NOT NULL AUTO_INCREMENT,
+  `user_id` int DEFAULT NULL,
+  `plan_id` int DEFAULT NULL,
+  `exercise_id` int DEFAULT NULL,
+  `workout_date` datetime DEFAULT NULL,
+  `actual_sets` int DEFAULT NULL,
+  `actual_reps` int DEFAULT NULL,
+  `actual_weight` float DEFAULT NULL,
+  `notes` varchar(255) DEFAULT NULL,
+  PRIMARY KEY (`log_id`),
+  KEY `user_id` (`user_id`),
+  KEY `plan_id` (`plan_id`),
+  KEY `exercise_id` (`exercise_id`),
+  CONSTRAINT `workout_logs_ibfk_1` FOREIGN KEY (`user_id`) REFERENCES `users` (`user_id`),
+  CONSTRAINT `workout_logs_ibfk_2` FOREIGN KEY (`plan_id`) REFERENCES `training_plans` (`plan_id`),
+  CONSTRAINT `workout_logs_ibfk_3` FOREIGN KEY (`exercise_id`) REFERENCES `exercises` (`exercise_id`)
+) ENGINE=InnoDB AUTO_INCREMENT=11 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
+
 INSERT INTO `coach_customers` (`coach_id`, `customer_id`) VALUES
 (3, 4),
 (3, 8),
-(3, 9);
+(6, 8);
 
 INSERT INTO `coaches` (`user_id`, `specialization`, `bio`, `rating_avg`) VALUES
 (3, NULL, NULL, NULL),
@@ -227,6 +271,13 @@ INSERT INTO `equipments` (`equipment_id`, `equipment_name`, `description`, `loca
 (4, 'Treadmill X3000', 'Cardio machine with heart rate sensors', 'Room 2 - 3rd floor - Cardio zone - Brand: BodyShape - District 1', 'ACTIVE', '2025-06-06 07:11:13', '2025-06-06 07:11:13'),
 (7, 'Vivian Copeland', 'Delectus officia no', 'Omnis deserunt labor', 'MAINTENANCE', '2025-06-06 15:06:02', '2025-06-06 15:05:51'),
 (8, 'Arsenio Chavez', 'Id nostrud aut vitae', 'Quia officiis dignis', 'BROKEN', '2025-06-06 15:06:11', '2025-06-06 15:06:11');
+
+INSERT INTO `exercises` (`exercise_id`, `exercises_name`, `description`, `muscle_group`, `equipment_needed`, `video_link`) VALUES
+(1, 'Bench Press', 'Barbell bench press for chest muscle development.', 'Chest', 'Barbell, Bench', 'https://youtube.com/benchpress'),
+(2, 'Squat', 'Barbell squat to strengthen legs and core.', 'Legs', 'Barbell, Squat Rack', 'https://youtube.com/squat'),
+(3, 'Deadlift', 'Barbell deadlift for full body strength.', 'Back', 'Barbell', 'https://youtube.com/deadlift'),
+(4, 'Bicep Curl', 'Dumbbell curl to build biceps.', 'Biceps', 'Dumbbell', 'https://youtube.com/bicepcurl'),
+(5, 'Plank', 'Core stability exercise.', 'Core', 'Bodyweight', 'https://youtube.com/plank');
 
 INSERT INTO `healths` (`health_id`, `user_id`, `weight`, `height`, `step`, `heartRate`, `standHours`, `exerciseTime`, `activeEnergy`) VALUES
 (2, 1, 58, 1.68, 225, 98.7137, 0, 1, 3.856);
@@ -245,11 +296,21 @@ INSERT INTO `packages` (`package_id`, `package_name`, `description`, `price`, `d
 (6, 'Annual Pass', 'Gói 12 tháng, ưu đãi tốt nhất, kèm tư vấn sức khỏe định kỳ', 15000000, 365),
 (7, 'Family Package', 'Gói cho nhóm gia đình, giảm giá khi đăng ký từ 2 người trở lên', 2500000, 30);
 
+INSERT INTO `training_plan_exercises` (`planExc_id`, `plan_id`, `exercise_id`, `day_number`, `sets`, `reps`, `weight`, `rest_time`) VALUES
+(6, 1, 1, 1, 4, 8, 60, 90),
+(7, 1, 2, 1, 4, 10, 80, 90),
+(8, 1, 3, 1, 4, 6, 100, 120),
+(9, 1, 4, 2, 3, 12, 15, 60),
+(10, 1, 5, 2, 3, 60, 0, 45);
+
+INSERT INTO `training_plans` (`plan_id`, `coach_id`, `user_id`, `description`, `diet_plan`) VALUES
+(1, 3, 4, 'Full Body Beginner Program', 'Standard diet plan');
+
 INSERT INTO `training_schedules` (`schedule_id`, `customer_id`, `coach_id`, `title`, `start_date`, `end_date`, `description`, `color`) VALUES
 (1, 4, 3, 'Morning Workout', '2025-06-01 08:00:00', '2025-06-03 08:30:00', 'Morning workout session for customer', 'red'),
 (2, 8, 3, 'Evening Cardio', '2025-06-05 17:00:00', '2025-06-05 18:00:00', 'Cardio session to improve stamina', 'blue'),
 (3, 9, 3, 'Yoga Class', '2025-06-07 07:00:00', '2025-06-07 08:00:00', 'Morning yoga to improve flexibility', 'green'),
-(9, 9, 3, 'Test1123', '2025-06-04 00:30:00', '2025-06-04 02:30:00', 'Test đó nha', 'green'),
+(9, 9, 3, 'Test1123', '2025-06-05 00:30:00', '2025-06-05 02:30:00', 'Test đó nha', 'green'),
 (10, 4, 3, 'Hello', '2025-06-07 19:30:00', '2025-06-08 20:09:00', '123', 'blue'),
 (11, 8, 3, 'Dưa hấu', '2025-06-08 21:05:00', '2025-06-08 22:10:00', 'Hấu văn dưa', 'yellow'),
 (12, 4, 3, '123', '2025-06-10 17:12:00', '2025-06-11 17:12:00', '12', 'purple'),
@@ -258,15 +319,22 @@ INSERT INTO `training_schedules` (`schedule_id`, `customer_id`, `coach_id`, `tit
 (15, 4, 3, 'Anh em mình cứ thế thôi', '2025-06-11 19:03:00', '2025-06-12 19:03:00', 'Hẹ hẹ hẹ', 'red');
 
 INSERT INTO `users` (`user_id`, `email`, `password`, `full_name`, `gender`, `date_of_birth`, `phone_number`, `avatar`, `role`, `created_by`, `refresh_token`) VALUES
-(1, 'son@gmail.com', '$2b$10$R/wwoI3iQ4zxlhyI2hS8kez9CttChYThFXAw8/R3U5jalh5aB9wja', 'Owner', 1, '2004-04-15', '0336114129', '1748862274581_383007449_Cute_Memes.jpeg', 'OWNER', NULL, 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VyX2lkIjoxLCJyb2xlIjoiT1dORVIiLCJrZXkiOiJoSXZiRW4iLCJpYXQiOjE3NDkyMjA4OTMsImV4cCI6MTc0OTMwNzI5M30.Q5JCy9ShepWoKCNUAhYGNsyCmC1_fAcCiyqeNAlhV-0'),
+(1, 'son@gmail.com', '$2b$10$R/wwoI3iQ4zxlhyI2hS8kez9CttChYThFXAw8/R3U5jalh5aB9wja', 'Owner', 1, '2004-04-15', '0336114129', '1748862274581_383007449_Cute_Memes.jpeg', 'OWNER', NULL, 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VyX2lkIjoxLCJyb2xlIjoiT1dORVIiLCJrZXkiOiI5VVRVQzAiLCJpYXQiOjE3NTAwNDQ4OTEsImV4cCI6MTc1MDEzMTI5MX0.UUp2PrC_PbkBIcIxcAFDahvTYTc-WNv3GZKtC7LaMK4'),
 (2, 'test@gmail.com', '$2b$10$Jy8aqlRe7QNOTxVn5HSUYuhqkbqhp6kE3apTmM2iVUwbtrO2YZ4s.', 'test', 1, '2025-05-18', '0123123123', '1748862293327_159108676_ironman.jpg', 'ADMIN', NULL, 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VyX2lkIjoyLCJyb2xlIjoiQURNSU4iLCJrZXkiOiJScFI5dEkiLCJpYXQiOjE3NDg4NzczNDcsImV4cCI6MTc0ODk2Mzc0N30.2IaJsvy-opmJMi1E_C91LaqmB2hmqbb8ntQjh3fSrLY'),
-(3, 'sun@gmail.com', '$2b$10$gXkXsRDMcMAhYBa15aFx8..BA4FzYf0pLtQ.aUWc6Mop70DECG.cu', 'sun', 0, '2025-05-18', '0987654321', '1748862315263_115293305_captain.jpg', 'COACH', NULL, 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VyX2lkIjozLCJyb2xlIjoiQ09BQ0giLCJrZXkiOiI5YUwxdHoiLCJpYXQiOjE3NDkyMTQ3NDUsImV4cCI6MTc0OTMwMTE0NX0.Nl9vlmmpVYMUwlO92Kl-mZWD5Dlx97V8JZHk5WMcAd8'),
+(3, 'sun@gmail.com', '$2b$10$gXkXsRDMcMAhYBa15aFx8..BA4FzYf0pLtQ.aUWc6Mop70DECG.cu', 'sun', 0, '2025-05-18', '0987654321', '1748862315263_115293305_captain.jpg', 'COACH', NULL, 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VyX2lkIjozLCJyb2xlIjoiQ09BQ0giLCJrZXkiOiJlZmNCMDgiLCJpYXQiOjE3NDkyNjg0NTAsImV4cCI6MTc0OTM1NDg1MH0.TBOR5zuIi6DpzV2_HaijLyjrzJKq_uH1pLQYUc2MvLo'),
 (4, 'test123@gmail.com', '$2b$10$s/v9sBAlu0RkqJ.LPtPuoOelTev2hrVMmroZe25yVVRJAtAfkYJjC', 'Nguyen Van A', 1, '2000-01-01', '0123123123', '1748872732883_28103112_hulk.jpg', 'CUSTOMER', 1, 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VyX2lkIjo0LCJyb2xlIjoiQ1VTVE9NRVIiLCJrZXkiOiJqT1BNdmIiLCJpYXQiOjE3NDc1ODc4MzEsImV4cCI6MTc0NzY3NDIzMX0.gWggxKd9Dr8vP97iOYOL2frqvb-zezJErEicNBdg8nA'),
 (5, 'vikimavir@mailinator.com', '$2b$10$.8EA.9Sab0WEm/1cZhlZk.PtmLJIR1fnXK9SpcrB7lKSkk9kzdkAe', 'Harriet Heath', 1, '2000-05-26', '0625589439', NULL, 'COACH', 1, NULL),
 (6, 'halo@gmail.com', '$2b$10$g6o6zWmu9vdfs2vVIJnAfOHqn3LyXbfbnatLj.DX4KJuFqfhKDL52', 'Halo Hola', 1, '2000-03-01', '0456789123', '1748277790479_475466991_cute-raccoon-d-cartoon.png', 'COACH', 1, NULL),
 (7, 'spiderman@gmail.com', '$2b$10$nRSfiGwYAKmjE/NGfgVmyuxAbug/gEdsY3A5Eoq4dx0e.YHA.f2/e', 'Spider Man', 1, '1999-06-30', '0123918412', '1748278050639_707057150_spiderMan.png', 'ADMIN', 1, NULL),
 (8, 'hau@gmail.com', '$2b$10$FYHzK70Dpfanxrpww2DyV..r.M1CUBQP5U2yhkCqxVYsNAOPt33V6', 'Dưa Văn Hấu', 1, '2001-02-08', '0981234675', '1748278142241_552433402_Cute_Memes.jpeg', 'CUSTOMER', 1, 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VyX2lkIjo4LCJyb2xlIjoiQ1VTVE9NRVIiLCJrZXkiOiJ0TTVxdkQiLCJpYXQiOjE3NDg3OTI1NTcsImV4cCI6MTc0ODg3ODk1N30.LL3v4xR6GQYwcTKxnLw_fBqO1Pa5sNDcuyqpTlnkl2Q'),
 (9, 'cangao@gmail.com', '$2b$10$Kk.iyPVGVd4OMv06xN7m3.USLq0g4A5AxQDBL52BayzkltlspVVgy', 'Cá Ngáo', 0, '1995-04-23', '0413568823', '1748862348715_227385886_cangao.png', 'CUSTOMER', 1, NULL);
+
+INSERT INTO `workout_logs` (`log_id`, `user_id`, `plan_id`, `exercise_id`, `workout_date`, `actual_sets`, `actual_reps`, `actual_weight`, `notes`) VALUES
+(6, 4, 1, 1, '2025-06-10 00:00:00', 4, 8, 60, 'Good form'),
+(7, 4, 1, 2, '2025-06-10 00:00:00', 4, 10, 80, 'Felt strong'),
+(8, 4, 1, 3, '2025-06-10 00:00:00', 4, 6, 100, 'Heavy but okay'),
+(9, 4, 1, 4, '2025-06-11 00:00:00', 3, 12, 15, 'Pump is good'),
+(10, 4, 1, 5, '2025-06-11 00:00:00', 3, 60, 0, 'Core burning!');
 
 
 

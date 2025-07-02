@@ -34,7 +34,7 @@ import { ChangeRoleDto } from '@/user/user-dto/change-role.dto';
 import { UpdateUserDto } from '@/user/user-dto/update-user.dto';
 import { FileInterceptor } from '@nestjs/platform-express';
 import { uploadOptions } from '@/config/upload.config';
-import { UploadAvatarDto } from '@/config/upload-dto/upload-avatar-dto';
+import { UploadAvatarDto } from '@/config/upload-dto/upload-avatar.dto';
 
 @ApiTags('User')
 @UseInterceptors(ResponseInterceptor)

@@ -12,6 +12,11 @@ import { SchedulesModule } from './schedules/schedules.module';
 import { CoachCustomersModule } from './coach-customers/coach-customers.module';
 import { EquipmentsModule } from './equipments/equipments.module';
 import { ChatModule } from './chat/chat.module';
+import { TrainingPlansModule } from './training/training_plans/training_plans.module';
+import { ExercisesModule } from './training/exercises/exercises.module';
+import { PlanExercisesModule } from './training/plan-exercises/plan-exercises.module';
+import { WorkoutLogsModule } from './training/workout-logs/workout-logs.module';
+import { VideosModule } from './videos/videos.module';
 
 @Module({
   imports: [
@@ -25,6 +30,11 @@ import { ChatModule } from './chat/chat.module';
     CoachCustomersModule,
     EquipmentsModule,
     ChatModule,
+    TrainingPlansModule,
+    ExercisesModule,
+    PlanExercisesModule,
+    WorkoutLogsModule,
+    VideosModule,
   ],
   controllers: [AppController],
   providers: [AppService, JwtStrategy],
