@@ -17,6 +17,7 @@ import { ExercisesModule } from './training/exercises/exercises.module';
 import { PlanExercisesModule } from './training/plan-exercises/plan-exercises.module';
 import { WorkoutLogsModule } from './training/workout-logs/workout-logs.module';
 import { VideosModule } from './videos/videos.module';
+import { CheckinsModule } from './checkins/checkins.module';
 
 @Module({
   imports: [
@@ -35,6 +36,7 @@ import { VideosModule } from './videos/videos.module';
     PlanExercisesModule,
     WorkoutLogsModule,
     VideosModule,
+    CheckinsModule,
   ],
   controllers: [AppController],
   providers: [AppService, JwtStrategy],
