@@ -8,10 +8,29 @@ import { PrismaClient } from '@prisma/client';
 export class SchedulesService {
   constructor(private prisma: PrismaClient) {}
 
-  async getSchedules(userId: number) {
+  async getUserRole(userId: number) {
+    const user = await this.prisma.users.findUnique({
+      where: { user_id: userId },
+      select: { role: true },
+    });
+
+    return user?.role || null;
+  }
+
+  async getSchedules(userId: number, customerId?: number) {
     try {
+      const role = await this.getUserRole(userId);
+
+      let whereClause: any = {};
+
+      if (role === 'COACH') {
+        whereClause.coach_id = userId;
+      } else if (role === 'CUSTOMER') {
+        whereClause.customer_id = userId;
+      }
+
       const schedules = await this.prisma.training_schedules.findMany({
-        where: { coach_id: userId },
+        where: whereClause,
         include: {
           customers: {
             include: {

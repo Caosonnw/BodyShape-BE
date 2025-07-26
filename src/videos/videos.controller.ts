@@ -1,10 +1,12 @@
 import { Controller, Get, Param, Req, Res } from '@nestjs/common';
+import { ApiExcludeEndpoint } from '@nestjs/swagger';
 import { Request, Response } from 'express';
 import * as fs from 'fs';
 import * as path from 'path';
 
 @Controller('videos')
 export class VideosController {
+  @ApiExcludeEndpoint()
   @Get(':filename')
   streamVideo(
     @Param('filename') filename: string,
