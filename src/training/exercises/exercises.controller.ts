@@ -31,7 +31,7 @@ export class ExercisesController {
 
   @ApiBearerAuth()
   @UseGuards(JwtAuthGuard, RolesGuard)
-  @Roles(UserRole.Owner, UserRole.ADMIN, UserRole.COACH)
+  @Roles(UserRole.Owner, UserRole.ADMIN, UserRole.COACH, UserRole.CUSTOMER)
   @Get('get-all-exercises')
   async getAllExercises() {
     return await this.exercisesService.getAllExercises();
@@ -39,7 +39,7 @@ export class ExercisesController {
 
   @ApiBearerAuth()
   @UseGuards(JwtAuthGuard, RolesGuard)
-  @Roles(UserRole.Owner, UserRole.ADMIN, UserRole.COACH)
+  @Roles(UserRole.Owner, UserRole.ADMIN, UserRole.COACH, UserRole.CUSTOMER)
   @Get('get-exercise-by-id/:exercise_id')
   async getExerciseById(
     @Param('exercise_id', ParseIntPipe) exercise_id: number,
