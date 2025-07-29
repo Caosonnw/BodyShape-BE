@@ -28,7 +28,7 @@ export class TrainingPlansController {
 
   @ApiBearerAuth()
   @UseGuards(JwtAuthGuard, RolesGuard)
-  @Roles(UserRole.Owner, UserRole.ADMIN, UserRole.COACH)
+  @Roles(UserRole.Owner, UserRole.ADMIN, UserRole.COACH, UserRole.CUSTOMER)
   @Get('get-all-training-plans')
   async getAllTrainingPlans() {
     return this.trainingPlansService.getAllTrainingPlans();
@@ -36,7 +36,7 @@ export class TrainingPlansController {
 
   @ApiBearerAuth()
   @UseGuards(JwtAuthGuard, RolesGuard)
-  @Roles(UserRole.Owner, UserRole.ADMIN, UserRole.COACH)
+  @Roles(UserRole.Owner, UserRole.ADMIN, UserRole.COACH, UserRole.CUSTOMER)
   @Get('get-training-plan-by-id/:training_plan_id')
   async getTrainingPlanById(
     @Param('training_plan_id', ParseIntPipe) training_plan_id: number,
