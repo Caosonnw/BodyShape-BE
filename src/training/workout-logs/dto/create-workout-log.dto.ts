@@ -30,7 +30,7 @@ export class CreateWorkoutLogDto {
   exercise_id: number;
 
   @ApiPropertyOptional({
-    example: '2023-10-01',
+    example: '2023-10-01T00:00:00Z',
     description: 'Date of the workout in YYYY-MM-DD format',
   })
   @IsDateString()

@@ -9,11 +9,20 @@ export class ExercisesService {
 
   async getAllExercises() {
     try {
-      const exercises = await this.prisma.exercises.findMany();
-      return Response('Exercises retrieved successfully', 200, exercises);
+      const exercises = await this.prisma.exercises.findMany({
+        orderBy: { exercise_id: 'asc' },
+      });
+      return Response(
+        'Exercises retrieved successfully',
+        HttpStatus.OK,
+        exercises,
+      );
     } catch (error) {
-      console.log(error);
-      return Response('Failed to retrieve exercises', 500, error.message);
+      return Response(
+        'Failed to retrieve exercises',
+        HttpStatus.INTERNAL_SERVER_ERROR,
+        error.message || error,
+      );
     }
   }
 
@@ -23,16 +32,23 @@ export class ExercisesService {
         where: { exercise_id },
       });
       if (!exercise) {
-        return Response('Exercise not found', 404, null);
+        return Response('Exercise not found', HttpStatus.NOT_FOUND, null);
       }
-      return Response('Exercise retrieved successfully', 200, exercise);
+      return Response(
+        'Exercise retrieved successfully',
+        HttpStatus.OK,
+        exercise,
+      );
     } catch (error) {
-      console.log(error);
-      return Response('Failed to retrieve exercise', 500, error.message);
+      return Response(
+        'Failed to retrieve exercise',
+        HttpStatus.INTERNAL_SERVER_ERROR,
+        error.message || error,
+      );
     }
   }
 
-  async createExercise(createExerciseDto: CreateExerciseDto) {
+  async createExercise(dto: CreateExerciseDto) {
     try {
       const {
         exercise_name,
@@ -40,40 +56,63 @@ export class ExercisesService {
         muscle_group,
         equipment_needed,
         video_url,
-      } = createExerciseDto;
+      } = dto;
 
-      const result = await this.prisma.exercises.create({
+      // Optional: guard against duplicate names
+      const existed = await this.prisma.exercises.findFirst({
+        where: { exercise_name },
+      });
+      if (existed) {
+        throw new HttpException(
+          'Exercise name already exists',
+          HttpStatus.CONFLICT,
+        );
+      }
+
+      const created = await this.prisma.exercises.create({
         data: {
           exercise_name,
           description,
           muscle_group,
           equipment_needed,
           video_url,
-          created_at: new Date().toISOString(),
+          created_at: new Date(),
+          updated_at: new Date(),
         },
       });
-
-      return Response('Exercise created successfully', 201, result);
+      return Response(
+        'Exercise created successfully',
+        HttpStatus.CREATED,
+        created,
+      );
     } catch (error) {
-      console.log(error);
-      return Response('Failed to create exercise', 500, error.message);
+      if (error instanceof HttpException) throw error;
+      return Response(
+        'Failed to create exercise',
+        HttpStatus.INTERNAL_SERVER_ERROR,
+        error.message || error,
+      );
     }
   }
 
-  async updateExercise(
-    createExerciseDto: CreateExerciseDto,
-    exercise_id: number,
-  ) {
+  async updateExercise(exercise_id: number, dto: CreateExerciseDto) {
     try {
+      const existed = await this.prisma.exercises.findUnique({
+        where: { exercise_id },
+      });
+      if (!existed) {
+        return Response('Exercise not found', HttpStatus.NOT_FOUND, null);
+      }
+
       const {
         exercise_name,
         description,
         muscle_group,
         equipment_needed,
         video_url,
-      } = createExerciseDto;
+      } = dto;
 
-      const result = await this.prisma.exercises.update({
+      const updated = await this.prisma.exercises.update({
         where: { exercise_id },
         data: {
           exercise_name,
@@ -81,26 +120,46 @@ export class ExercisesService {
           muscle_group,
           equipment_needed,
           video_url,
-          updated_at: new Date().toISOString(),
+          updated_at: new Date(),
         },
       });
-
-      return Response('Exercise updated successfully', 200, result);
+      return Response('Exercise updated successfully', HttpStatus.OK, updated);
     } catch (error) {
-      console.log(error);
-      return Response('Failed to update exercise', 500, error.message);
+      return Response(
+        'Failed to update exercise',
+        HttpStatus.INTERNAL_SERVER_ERROR,
+        error.message || error,
+      );
     }
   }
 
   async deleteExercise(exercise_id: number) {
     try {
-      const result = await this.prisma.exercises.delete({
+      // Ensure no workout_logs or training_plan_exercises still reference this exercise
+      const deps = await this.prisma.workout_logs.count({
         where: { exercise_id },
       });
-      return Response('Exercise deleted successfully', 200, result);
+      const depsPlan = await this.prisma.training_plan_exercises.count({
+        where: { exercise_id },
+      });
+      if (deps > 0 || depsPlan > 0) {
+        throw new HttpException(
+          'Exercise is referenced by other records',
+          HttpStatus.CONFLICT,
+        );
+      }
+
+      const deleted = await this.prisma.exercises.delete({
+        where: { exercise_id },
+      });
+      return Response('Exercise deleted successfully', HttpStatus.OK, deleted);
     } catch (error) {
-      console.log(error);
-      return Response('Failed to delete exercise', 500, error.message);
+      if (error instanceof HttpException) throw error;
+      return Response(
+        'Failed to delete exercise',
+        HttpStatus.INTERNAL_SERVER_ERROR,
+        error.message || error,
+      );
     }
   }
 

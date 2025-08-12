@@ -1,5 +1,7 @@
+import { CreateWorkoutLogDto } from '@/training/workout-logs/dto/create-workout-log.dto';
+import { UpdateWorkoutLogDto } from '@/training/workout-logs/dto/update-workout-log.dto.ts';
 import { Response } from '@/utils/utils';
-import { HttpStatus, Injectable } from '@nestjs/common';
+import { HttpException, HttpStatus, Injectable } from '@nestjs/common';
 import { PrismaClient } from '@prisma/client';
 
 @Injectable()
@@ -189,15 +191,50 @@ export class WorkoutLogsService {
     }
   }
 
-  async createWorkoutLog(createWorkoutLogDto) {
+  async createWorkoutLog(createWorkoutLogDto: CreateWorkoutLogDto) {
     try {
-      const newLog = await this.prisma.workout_logs.create({
-        data: createWorkoutLogDto,
+      const { customer_id, plan_id, exercise_id } = createWorkoutLogDto;
+
+      // Validate FKs
+      const customer = await this.prisma.customers.findFirst({
+        where: { user_id: customer_id },
+      });
+      if (!customer)
+        throw new HttpException(
+          `Customer ${customer_id} not found`,
+          HttpStatus.BAD_REQUEST,
+        );
+
+      const plan = await this.prisma.training_plans.findFirst({
+        where: { plan_id },
+      });
+      if (!plan)
+        throw new HttpException(
+          `Training plan ${plan_id} not found`,
+          HttpStatus.BAD_REQUEST,
+        );
+
+      const exercise = await this.prisma.exercises.findFirst({
+        where: { exercise_id },
+      });
+      if (!exercise)
+        throw new HttpException(
+          `Exercise ${exercise_id} not found`,
+          HttpStatus.BAD_REQUEST,
+        );
+
+      const created = await this.prisma.workout_logs.create({
+        data: {
+          ...createWorkoutLogDto,
+          workout_date: createWorkoutLogDto.workout_date
+            ? new Date(createWorkoutLogDto.workout_date)
+            : new Date(),
+        },
       });
       return Response(
         'Workout log created successfully',
         HttpStatus.CREATED,
-        newLog,
+        created,
       );
     } catch (error) {
       console.log(error);
@@ -209,16 +246,61 @@ export class WorkoutLogsService {
     }
   }
 
-  async updateWorkoutLog(log_id: number, updateWorkoutLogDto) {
+  async updateWorkoutLog(
+    log_id: number,
+    updateWorkoutLogDto: UpdateWorkoutLogDto,
+  ) {
     try {
-      const updatedLog = await this.prisma.workout_logs.update({
+      const existed = await this.prisma.workout_logs.findUnique({
         where: { log_id },
-        data: updateWorkoutLogDto,
+      });
+      if (!existed)
+        return Response('Workout log not found', HttpStatus.NOT_FOUND, null);
+
+      if (updateWorkoutLogDto.customer_id) {
+        const c = await this.prisma.customers.findUnique({
+          where: { user_id: updateWorkoutLogDto.customer_id },
+        });
+        if (!c)
+          throw new HttpException(
+            `Customer ${updateWorkoutLogDto.customer_id} not found`,
+            HttpStatus.BAD_REQUEST,
+          );
+      }
+      if (updateWorkoutLogDto.plan_id) {
+        const p = await this.prisma.training_plans.findUnique({
+          where: { plan_id: updateWorkoutLogDto.plan_id },
+        });
+        if (!p)
+          throw new HttpException(
+            `Training plan ${updateWorkoutLogDto.plan_id} not found`,
+            HttpStatus.BAD_REQUEST,
+          );
+      }
+      if (updateWorkoutLogDto.exercise_id) {
+        const e = await this.prisma.exercises.findUnique({
+          where: { exercise_id: updateWorkoutLogDto.exercise_id },
+        });
+        if (!e)
+          throw new HttpException(
+            `Exercise ${updateWorkoutLogDto.exercise_id} not found`,
+            HttpStatus.BAD_REQUEST,
+          );
+      }
+
+      const updated = await this.prisma.workout_logs.update({
+        where: { log_id },
+        data: {
+          ...updateWorkoutLogDto,
+          workout_date: updateWorkoutLogDto.workout_date
+            ? new Date(updateWorkoutLogDto.workout_date)
+            : undefined,
+        },
       });
       return Response(
         'Workout log updated successfully',
         HttpStatus.OK,
-        updatedLog,
+        updated,
       );
     } catch (error) {
       console.log(error);
