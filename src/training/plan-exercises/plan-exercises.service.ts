@@ -210,6 +210,80 @@ export class PlanExercisesService {
     }
   }
 
+  async getPlanExercisesByCustomer(customerId: number) {
+    try {
+      const rawData = await this.prisma.training_plan_exercises.findMany({
+        where: { training_plans: { customers: { user_id: customerId } } },
+        include: {
+          training_plans: {
+            include: {
+              coaches: {
+                include: {
+                  users: {
+                    select: {
+                      user_id: true,
+                      full_name: true,
+                      email: true,
+                      date_of_birth: true,
+                      phone_number: true,
+                      avatar: true,
+                    },
+                  },
+                },
+              },
+              customers: {
+                include: {
+                  users: {
+                    select: {
+                      user_id: true,
+                      full_name: true,
+                      email: true,
+                      date_of_birth: true,
+                      phone_number: true,
+                      avatar: true,
+                    },
+                  },
+                },
+              },
+            },
+          },
+          exercises: {
+            select: {
+              exercise_id: true,
+              exercise_name: true,
+              description: true,
+              muscle_group: true,
+              equipment_needed: true,
+              video_url: true,
+            },
+          },
+        },
+      });
+
+      if (!rawData || rawData.length === 0) {
+        return Response(
+          'No plan exercises found for this customer.',
+          HttpStatus.NOT_FOUND,
+          null,
+        );
+      }
+
+      const formatted = rawData.map(this.formatPlanExercise);
+      return Response(
+        'Plan exercises for customer retrieved successfully.',
+        HttpStatus.OK,
+        formatted,
+      );
+    } catch (error) {
+      console.error(error);
+      return Response(
+        'Failed to retrieve plan exercises for customer.',
+        HttpStatus.INTERNAL_SERVER_ERROR,
+        error.message || error,
+      );
+    }
+  }
+
   async createPlanExercise(createPlanExerciseDto: CreatePlanExerciseDto) {
     try {
       const {

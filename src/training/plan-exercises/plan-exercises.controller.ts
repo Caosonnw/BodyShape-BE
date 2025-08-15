@@ -4,10 +4,12 @@ import {
   Controller,
   Delete,
   Get,
+  HttpStatus,
   Param,
   ParseIntPipe,
   Post,
   Put,
+  Req,
   UseGuards,
   UseInterceptors,
 } from '@nestjs/common';
@@ -19,6 +21,7 @@ import { Roles } from '@/auth/guards/decorators/roles.decorator';
 import { UserRole } from '@/auth/guards/roles/user.roles';
 import { CreatePlanExerciseDto } from '@/training/plan-exercises/dto/create-plan-exercises.dto';
 import { UpdatePlanExerciseDto } from '@/training/plan-exercises/dto/update-plan-exercises.dto';
+import { Response } from '@/utils/utils';
 
 @ApiTags('Plan Exercises')
 @UseInterceptors(ResponseInterceptor)
@@ -28,7 +31,7 @@ export class PlanExercisesController {
 
   @ApiBearerAuth()
   @UseGuards(JwtAuthGuard, RolesGuard)
-  @Roles(UserRole.Owner, UserRole.ADMIN, UserRole.COACH)
+  @Roles(UserRole.Owner, UserRole.ADMIN, UserRole.COACH, UserRole.CUSTOMER)
   @Get('get-all-plan-exercises')
   async getAllPlanExercises() {
     return this.planExercisesService.getAllPlanExercises();
@@ -42,6 +45,19 @@ export class PlanExercisesController {
     @Param('plan_exercise_id', ParseIntPipe) planExerciseId: number,
   ) {
     return this.planExercisesService.getPlanExerciseById(planExerciseId);
+  }
+
+  @ApiBearerAuth()
+  @UseGuards(JwtAuthGuard, RolesGuard)
+  @Roles(UserRole.Owner, UserRole.ADMIN, UserRole.COACH, UserRole.CUSTOMER)
+  @Get('get-plan-exercises-by-customer')
+  async getPlanExercisesByCustomer(@Req() req) {
+    const customerId = req.user.user_id;
+    if (customerId) {
+      return this.planExercisesService.getPlanExercisesByCustomer(customerId);
+    } else {
+      return Response('No user found!', HttpStatus.NOT_FOUND);
+    }
   }
 
   @ApiBearerAuth()

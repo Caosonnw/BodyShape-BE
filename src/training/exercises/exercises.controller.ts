@@ -64,8 +64,8 @@ export class ExercisesController {
     @Param('exercise_id', ParseIntPipe) exercise_id: number,
   ) {
     return await this.exercisesService.updateExercise(
-      createExerciseDto,
       exercise_id,
+      createExerciseDto,
     );
   }
 
