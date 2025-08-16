@@ -3,10 +3,12 @@ import {
   Controller,
   Delete,
   Get,
+  HttpStatus,
   Param,
   ParseIntPipe,
   Post,
   Put,
+  Req,
   UseGuards,
   UseInterceptors,
 } from '@nestjs/common';
@@ -18,6 +20,7 @@ import { RolesGuard } from '@/auth/guards/roles/roles.guard';
 import { Roles } from '@/auth/guards/decorators/roles.decorator';
 import { UserRole } from '@/auth/guards/roles/user.roles';
 import { CreateWorkoutLogDto } from '@/training/workout-logs/dto/create-workout-log.dto';
+import { Response } from '@/utils/utils';
 
 @ApiTags('Workout Logs')
 @UseInterceptors(ResponseInterceptor)
@@ -27,7 +30,7 @@ export class WorkoutLogsController {
 
   @ApiBearerAuth()
   @UseGuards(JwtAuthGuard, RolesGuard)
-  @Roles(UserRole.Owner, UserRole.ADMIN, UserRole.COACH)
+  @Roles(UserRole.Owner, UserRole.ADMIN, UserRole.COACH, UserRole.CUSTOMER)
   @Get('get-all-workout-logs')
   async getAllWorkoutLogs() {
     return this.workoutLogsService.getAllWorkoutLogs();
@@ -35,7 +38,7 @@ export class WorkoutLogsController {
 
   @ApiBearerAuth()
   @UseGuards(JwtAuthGuard, RolesGuard)
-  @Roles(UserRole.Owner, UserRole.ADMIN, UserRole.COACH)
+  @Roles(UserRole.Owner, UserRole.ADMIN, UserRole.COACH, UserRole.CUSTOMER)
   @Get('get-workout-logs-by-id/:log_id')
   async getWorkoutLogsById(@Param('log_id', ParseIntPipe) log_id: number) {
     return this.workoutLogsService.getWorkoutLogsById(log_id);
@@ -43,7 +46,30 @@ export class WorkoutLogsController {
 
   @ApiBearerAuth()
   @UseGuards(JwtAuthGuard, RolesGuard)
-  @Roles(UserRole.Owner, UserRole.ADMIN, UserRole.COACH)
+  @Roles(UserRole.Owner, UserRole.ADMIN, UserRole.COACH, UserRole.CUSTOMER)
+  @Get('get-workout-logs-by-customer')
+  async getWorkoutLogsByCustomer(@Req() req) {
+    const customerId = req.user.user_id;
+    if (customerId) {
+      return this.workoutLogsService.getWorkoutLogsByCustomer(customerId);
+    } else {
+      return Response('No user found!', HttpStatus.NOT_FOUND);
+    }
+  }
+
+  @ApiBearerAuth()
+  @UseGuards(JwtAuthGuard, RolesGuard)
+  @Roles(UserRole.Owner, UserRole.ADMIN, UserRole.COACH, UserRole.CUSTOMER)
+  @Get('get-workout-logs-by-exercise/:exercise_id')
+  async getWorkoutLogsByExercise(
+    @Param('exercise_id', ParseIntPipe) exercise_id: number,
+  ) {
+    return this.workoutLogsService.getWorkoutLogsByExercise(exercise_id);
+  }
+
+  @ApiBearerAuth()
+  @UseGuards(JwtAuthGuard, RolesGuard)
+  @Roles(UserRole.Owner, UserRole.ADMIN, UserRole.COACH, UserRole.CUSTOMER)
   @Post('create-workout-log')
   async createWorkoutLog(@Body() createWorkoutLogDto: CreateWorkoutLogDto) {
     return this.workoutLogsService.createWorkoutLog(createWorkoutLogDto);
@@ -51,7 +77,7 @@ export class WorkoutLogsController {
 
   @ApiBearerAuth()
   @UseGuards(JwtAuthGuard, RolesGuard)
-  @Roles(UserRole.Owner, UserRole.ADMIN, UserRole.COACH)
+  @Roles(UserRole.Owner, UserRole.ADMIN, UserRole.COACH, UserRole.CUSTOMER)
   @Put('update-workout-log/:log_id')
   async updateWorkoutLog(
     @Param('log_id', ParseIntPipe) log_id: number,

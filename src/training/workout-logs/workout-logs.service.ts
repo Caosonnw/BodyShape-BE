@@ -117,8 +117,8 @@ export class WorkoutLogsService {
       console.log(error);
       return Response(
         'Error fetching workout logs',
-        error.message || 'An error occurred while fetching workout logs',
         HttpStatus.INTERNAL_SERVER_ERROR,
+        error.message || 'An error occurred while fetching workout logs',
       );
     }
   }
@@ -191,9 +191,174 @@ export class WorkoutLogsService {
     }
   }
 
+  async getWorkoutLogsByCustomer(customer_id: number) {
+    try {
+      const response = await this.prisma.workout_logs.findMany({
+        where: {
+          customers: {
+            user_id: customer_id,
+          },
+        },
+        include: {
+          training_plans: {
+            include: {
+              coaches: {
+                include: {
+                  users: {
+                    select: {
+                      user_id: true,
+                      full_name: true,
+                      email: true,
+                      date_of_birth: true,
+                      phone_number: true,
+                      avatar: true,
+                    },
+                  },
+                },
+              },
+              customers: {
+                include: {
+                  users: {
+                    select: {
+                      user_id: true,
+                      full_name: true,
+                      email: true,
+                      date_of_birth: true,
+                      phone_number: true,
+                      avatar: true,
+                    },
+                  },
+                },
+              },
+            },
+          },
+          exercises: {
+            select: {
+              exercise_id: true,
+              exercise_name: true,
+              description: true,
+              muscle_group: true,
+              equipment_needed: true,
+              video_url: true,
+            },
+          },
+        },
+      });
+      if (!response || response.length === 0) {
+        return Response(
+          'No workout logs found for this customer',
+          HttpStatus.NOT_FOUND,
+          null,
+        );
+      }
+      const formattedLogs = response.map((item) =>
+        this.formatWorkoutLogs(item),
+      );
+      return Response(
+        'Workout logs fetched successfully',
+        HttpStatus.OK,
+        formattedLogs,
+      );
+    } catch (error) {
+      console.log(error);
+      return Response(
+        'Error fetching workout logs',
+        HttpStatus.INTERNAL_SERVER_ERROR,
+        error.message || 'An error occurred while fetching workout logs',
+      );
+    }
+  }
+
+  async getWorkoutLogsByExercise(exercise_id: number) {
+    try {
+      const response = await this.prisma.workout_logs.findMany({
+        where: {
+          exercises: {
+            exercise_id: exercise_id,
+          },
+        },
+        include: {
+          training_plans: {
+            include: {
+              coaches: {
+                include: {
+                  users: {
+                    select: {
+                      user_id: true,
+                      full_name: true,
+                      email: true,
+                      date_of_birth: true,
+                      phone_number: true,
+                      avatar: true,
+                    },
+                  },
+                },
+              },
+              customers: {
+                include: {
+                  users: {
+                    select: {
+                      user_id: true,
+                      full_name: true,
+                      email: true,
+                      date_of_birth: true,
+                      phone_number: true,
+                      avatar: true,
+                    },
+                  },
+                },
+              },
+            },
+          },
+          exercises: {
+            select: {
+              exercise_id: true,
+              exercise_name: true,
+              description: true,
+              muscle_group: true,
+              equipment_needed: true,
+              video_url: true,
+            },
+          },
+        },
+      });
+      if (!response || response.length === 0) {
+        return Response(
+          'No workout logs found for this training plan',
+          HttpStatus.NOT_FOUND,
+          null,
+        );
+      }
+      const formattedLogs = response.map((item) =>
+        this.formatWorkoutLogs(item),
+      );
+      return Response(
+        'Workout logs fetched successfully',
+        HttpStatus.OK,
+        formattedLogs,
+      );
+    } catch (error) {
+      console.log(error);
+      return Response(
+        'Error fetching workout logs',
+        HttpStatus.INTERNAL_SERVER_ERROR,
+        error.message || 'An error occurred while fetching workout logs',
+      );
+    }
+  }
+
   async createWorkoutLog(createWorkoutLogDto: CreateWorkoutLogDto) {
     try {
-      const { customer_id, plan_id, exercise_id } = createWorkoutLogDto;
+      const {
+        customer_id,
+        exercise_id,
+        workout_date,
+        actual_sets,
+        actual_reps,
+        actual_weight,
+        notes,
+        plan_id,
+      } = createWorkoutLogDto;
 
       // Validate FKs
       const customer = await this.prisma.customers.findFirst({
@@ -225,10 +390,18 @@ export class WorkoutLogsService {
 
       const created = await this.prisma.workout_logs.create({
         data: {
-          ...createWorkoutLogDto,
-          workout_date: createWorkoutLogDto.workout_date
-            ? new Date(createWorkoutLogDto.workout_date)
-            : new Date(),
+          // ...createWorkoutLogDto,
+          // workout_date: createWorkoutLogDto.workout_date
+          //   ? new Date(createWorkoutLogDto.workout_date)
+          //   : new Date(),
+          actual_sets,
+          actual_reps,
+          actual_weight,
+          notes,
+          workout_date: workout_date ? new Date(workout_date) : new Date(),
+          training_plans: { connect: { plan_id } },
+          exercises: { connect: { exercise_id } },
+          customers: { connect: { user_id: customer_id } },
         },
       });
       return Response(
