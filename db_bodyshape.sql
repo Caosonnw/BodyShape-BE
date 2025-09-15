@@ -1,0 +1,391 @@
+-- -------------------------------------------------------------
+-- TablePlus 6.0.0(550)
+--
+-- https://tableplus.com/
+--
+-- Database: db_bodyshape
+-- Generation Time: 2025-08-19 21:51:00.6160
+-- -------------------------------------------------------------
+
+
+/*!40101 SET @OLD_CHARACTER_SET_CLIENT=@@CHARACTER_SET_CLIENT */;
+/*!40101 SET @OLD_CHARACTER_SET_RESULTS=@@CHARACTER_SET_RESULTS */;
+/*!40101 SET @OLD_COLLATION_CONNECTION=@@COLLATION_CONNECTION */;
+/*!40101 SET NAMES utf8mb4 */;
+/*!40014 SET @OLD_UNIQUE_CHECKS=@@UNIQUE_CHECKS, UNIQUE_CHECKS=0 */;
+/*!40014 SET @OLD_FOREIGN_KEY_CHECKS=@@FOREIGN_KEY_CHECKS, FOREIGN_KEY_CHECKS=0 */;
+/*!40101 SET @OLD_SQL_MODE=@@SQL_MODE, SQL_MODE='NO_AUTO_VALUE_ON_ZERO' */;
+/*!40111 SET @OLD_SQL_NOTES=@@SQL_NOTES, SQL_NOTES=0 */;
+
+
+CREATE TABLE `checkins` (
+  `checkin_id` int NOT NULL AUTO_INCREMENT,
+  `user_id` int DEFAULT NULL,
+  `checkin_time` datetime DEFAULT NULL,
+  `checkout_time` datetime DEFAULT NULL,
+  PRIMARY KEY (`checkin_id`),
+  KEY `user_id` (`user_id`),
+  CONSTRAINT `checkins_ibfk_1` FOREIGN KEY (`user_id`) REFERENCES `users` (`user_id`)
+) ENGINE=InnoDB AUTO_INCREMENT=5 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
+
+CREATE TABLE `coach_customers` (
+  `coach_id` int NOT NULL,
+  `customer_id` int NOT NULL,
+  PRIMARY KEY (`coach_id`,`customer_id`),
+  KEY `customer_id` (`customer_id`),
+  KEY `coach_id` (`coach_id`) USING BTREE,
+  CONSTRAINT `coach_customers_ibfk_1` FOREIGN KEY (`coach_id`) REFERENCES `coaches` (`user_id`),
+  CONSTRAINT `coach_customers_ibfk_2` FOREIGN KEY (`customer_id`) REFERENCES `customers` (`user_id`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
+
+CREATE TABLE `coaches` (
+  `user_id` int NOT NULL,
+  `specialization` varchar(255) DEFAULT NULL,
+  `bio` varchar(255) DEFAULT NULL,
+  `rating_avg` varchar(255) DEFAULT NULL,
+  PRIMARY KEY (`user_id`),
+  CONSTRAINT `coaches_ibfk_1` FOREIGN KEY (`user_id`) REFERENCES `users` (`user_id`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
+
+CREATE TABLE `customers` (
+  `user_id` int NOT NULL,
+  `health_info` varchar(255) DEFAULT NULL,
+  `goals` varchar(255) DEFAULT NULL,
+  PRIMARY KEY (`user_id`),
+  CONSTRAINT `customers_ibfk_1` FOREIGN KEY (`user_id`) REFERENCES `users` (`user_id`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
+
+CREATE TABLE `direct_conversation_reads` (
+  `conversation_id` int NOT NULL,
+  `user_id` int NOT NULL,
+  `last_read_message_id` int DEFAULT NULL,
+  PRIMARY KEY (`conversation_id`,`user_id`),
+  KEY `dcr_user_fk` (`user_id`),
+  CONSTRAINT `dcr_conv_fk` FOREIGN KEY (`conversation_id`) REFERENCES `direct_conversations` (`conversation_id`) ON DELETE CASCADE,
+  CONSTRAINT `dcr_user_fk` FOREIGN KEY (`user_id`) REFERENCES `users` (`user_id`) ON DELETE CASCADE
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
+
+CREATE TABLE `direct_conversations` (
+  `conversation_id` int NOT NULL AUTO_INCREMENT,
+  `user_low_id` int NOT NULL,
+  `user_high_id` int NOT NULL,
+  `last_message_at` datetime DEFAULT NULL,
+  `created_at` datetime NOT NULL DEFAULT CURRENT_TIMESTAMP,
+  PRIMARY KEY (`conversation_id`),
+  UNIQUE KEY `uniq_pair` (`user_low_id`,`user_high_id`),
+  KEY `dc_high_fk` (`user_high_id`),
+  CONSTRAINT `dc_high_fk` FOREIGN KEY (`user_high_id`) REFERENCES `users` (`user_id`) ON DELETE CASCADE,
+  CONSTRAINT `dc_low_fk` FOREIGN KEY (`user_low_id`) REFERENCES `users` (`user_id`) ON DELETE CASCADE,
+  CONSTRAINT `chk_pair_order` CHECK ((`user_low_id` < `user_high_id`))
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
+
+CREATE TABLE `direct_messages` (
+  `message_id` int NOT NULL AUTO_INCREMENT,
+  `conversation_id` int NOT NULL,
+  `sender_id` int NOT NULL,
+  `content` text,
+  `type` varchar(20) DEFAULT 'TEXT',
+  `created_at` datetime NOT NULL DEFAULT CURRENT_TIMESTAMP,
+  PRIMARY KEY (`message_id`),
+  KEY `conv_msg_idx` (`conversation_id`,`message_id`),
+  KEY `sender_idx` (`sender_id`),
+  CONSTRAINT `dm_conv_fk` FOREIGN KEY (`conversation_id`) REFERENCES `direct_conversations` (`conversation_id`) ON DELETE CASCADE,
+  CONSTRAINT `dm_sender_fk` FOREIGN KEY (`sender_id`) REFERENCES `users` (`user_id`) ON DELETE CASCADE
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
+
+CREATE TABLE `equipment_issues` (
+  `issue_id` int NOT NULL AUTO_INCREMENT,
+  `equipment_id` int DEFAULT NULL,
+  `reported_by` int DEFAULT NULL,
+  `issue_description` varchar(255) DEFAULT NULL,
+  `reported_at` datetime DEFAULT NULL,
+  `status` varchar(255) DEFAULT NULL,
+  `resolved_at` datetime DEFAULT NULL,
+  PRIMARY KEY (`issue_id`),
+  KEY `equipment_id` (`equipment_id`),
+  KEY `reported_by` (`reported_by`),
+  CONSTRAINT `equipment_issues_ibfk_1` FOREIGN KEY (`equipment_id`) REFERENCES `equipments` (`equipment_id`),
+  CONSTRAINT `equipment_issues_ibfk_2` FOREIGN KEY (`reported_by`) REFERENCES `users` (`user_id`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
+
+CREATE TABLE `equipments` (
+  `equipment_id` int NOT NULL AUTO_INCREMENT,
+  `equipment_name` varchar(255) CHARACTER SET utf8mb4 COLLATE utf8mb4_0900_ai_ci DEFAULT NULL,
+  `description` varchar(255) CHARACTER SET utf8mb4 COLLATE utf8mb4_0900_ai_ci DEFAULT NULL,
+  `location` varchar(255) CHARACTER SET utf8mb4 COLLATE utf8mb4_0900_ai_ci DEFAULT NULL,
+  `status` varchar(255) CHARACTER SET utf8mb4 COLLATE utf8mb4_0900_ai_ci DEFAULT NULL,
+  `last_maintenance_date` datetime DEFAULT NULL,
+  `created_at` datetime DEFAULT NULL,
+  PRIMARY KEY (`equipment_id`)
+) ENGINE=InnoDB AUTO_INCREMENT=9 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
+
+CREATE TABLE `exercises` (
+  `exercise_id` int NOT NULL AUTO_INCREMENT,
+  `exercise_name` varchar(100) CHARACTER SET utf8mb4 COLLATE utf8mb4_0900_ai_ci DEFAULT NULL,
+  `description` varchar(255) DEFAULT NULL,
+  `muscle_group` varchar(50) DEFAULT NULL,
+  `equipment_needed` varchar(255) DEFAULT NULL,
+  `video_url` varchar(255) CHARACTER SET utf8mb4 COLLATE utf8mb4_0900_ai_ci DEFAULT NULL,
+  `created_at` datetime DEFAULT NULL,
+  `updated_at` datetime DEFAULT NULL,
+  PRIMARY KEY (`exercise_id`)
+) ENGINE=InnoDB AUTO_INCREMENT=9 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
+
+CREATE TABLE `healths` (
+  `health_id` int NOT NULL AUTO_INCREMENT,
+  `user_id` int DEFAULT NULL,
+  `weight` float DEFAULT NULL,
+  `height` float DEFAULT NULL,
+  `step` float DEFAULT NULL,
+  `heartRate` float DEFAULT NULL,
+  `standHours` float DEFAULT NULL,
+  `exerciseTime` float DEFAULT NULL,
+  `activeEnergy` float DEFAULT NULL,
+  PRIMARY KEY (`health_id`),
+  KEY `user_id` (`user_id`),
+  CONSTRAINT `healths_ibfk_1` FOREIGN KEY (`user_id`) REFERENCES `users` (`user_id`)
+) ENGINE=InnoDB AUTO_INCREMENT=3 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
+
+CREATE TABLE `invoices` (
+  `invoice_id` int NOT NULL AUTO_INCREMENT,
+  `customer_id` int DEFAULT NULL,
+  `total_amount` int DEFAULT NULL,
+  `issued_date` datetime DEFAULT NULL,
+  `due_date` datetime DEFAULT NULL,
+  `status` varchar(255) CHARACTER SET utf8mb4 COLLATE utf8mb4_0900_ai_ci DEFAULT NULL,
+  PRIMARY KEY (`invoice_id`),
+  KEY `user_id` (`customer_id`),
+  CONSTRAINT `invoices_ibfk_1` FOREIGN KEY (`customer_id`) REFERENCES `customers` (`user_id`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
+
+CREATE TABLE `membership_cards` (
+  `card_id` int NOT NULL AUTO_INCREMENT,
+  `customer_id` int DEFAULT NULL,
+  `package_id` int DEFAULT NULL,
+  `start_date` datetime DEFAULT NULL,
+  `end_date` datetime DEFAULT NULL,
+  `status` varchar(30) CHARACTER SET utf8mb4 COLLATE utf8mb4_0900_ai_ci DEFAULT NULL,
+  PRIMARY KEY (`card_id`),
+  KEY `package_id` (`package_id`),
+  KEY `user_id` (`customer_id`),
+  CONSTRAINT `membership_cards_ibfk_2` FOREIGN KEY (`package_id`) REFERENCES `packages` (`package_id`),
+  CONSTRAINT `membership_cards_ibfk_3` FOREIGN KEY (`customer_id`) REFERENCES `customers` (`user_id`)
+) ENGINE=InnoDB AUTO_INCREMENT=5 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
+
+CREATE TABLE `packages` (
+  `package_id` int NOT NULL AUTO_INCREMENT,
+  `package_name` varchar(255) DEFAULT NULL,
+  `description` varchar(255) DEFAULT NULL,
+  `price` int DEFAULT NULL,
+  `duration_days` int DEFAULT NULL,
+  PRIMARY KEY (`package_id`)
+) ENGINE=InnoDB AUTO_INCREMENT=10 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
+
+CREATE TABLE `payments` (
+  `payment_id` int NOT NULL AUTO_INCREMENT,
+  `customer_id` int DEFAULT NULL,
+  `package_id` int DEFAULT NULL,
+  `amount` int DEFAULT NULL,
+  `payment_date` datetime DEFAULT NULL,
+  `method` varchar(255) DEFAULT NULL,
+  `status` varchar(255) DEFAULT NULL,
+  PRIMARY KEY (`payment_id`),
+  KEY `package_id` (`package_id`),
+  KEY `user_id` (`customer_id`),
+  CONSTRAINT `payments_ibfk_2` FOREIGN KEY (`package_id`) REFERENCES `packages` (`package_id`),
+  CONSTRAINT `payments_ibfk_3` FOREIGN KEY (`customer_id`) REFERENCES `customers` (`user_id`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
+
+CREATE TABLE `reviews` (
+  `review_id` int NOT NULL AUTO_INCREMENT,
+  `user_id` int DEFAULT NULL,
+  `coach_id` int DEFAULT NULL,
+  `rating` int DEFAULT NULL,
+  `comment` varchar(255) DEFAULT NULL,
+  `created_at` datetime DEFAULT NULL,
+  PRIMARY KEY (`review_id`),
+  KEY `user_id` (`user_id`),
+  KEY `coach_id` (`coach_id`),
+  CONSTRAINT `reviews_ibfk_3` FOREIGN KEY (`user_id`) REFERENCES `customers` (`user_id`),
+  CONSTRAINT `reviews_ibfk_4` FOREIGN KEY (`coach_id`) REFERENCES `coaches` (`user_id`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
+
+CREATE TABLE `training_plan_exercises` (
+  `planExc_id` int NOT NULL AUTO_INCREMENT,
+  `plan_id` int DEFAULT NULL,
+  `exercise_id` int DEFAULT NULL,
+  `day_number` int DEFAULT NULL,
+  `sets` int DEFAULT NULL,
+  `reps` int DEFAULT NULL,
+  `weight` float DEFAULT NULL,
+  `rest_time` int DEFAULT NULL,
+  PRIMARY KEY (`planExc_id`),
+  KEY `plan_id` (`plan_id`),
+  KEY `exercise_id` (`exercise_id`),
+  CONSTRAINT `training_plan_exercises_ibfk_1` FOREIGN KEY (`plan_id`) REFERENCES `training_plans` (`plan_id`),
+  CONSTRAINT `training_plan_exercises_ibfk_2` FOREIGN KEY (`exercise_id`) REFERENCES `exercises` (`exercise_id`)
+) ENGINE=InnoDB AUTO_INCREMENT=12 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
+
+CREATE TABLE `training_plans` (
+  `plan_id` int NOT NULL AUTO_INCREMENT,
+  `coach_id` int DEFAULT NULL,
+  `customer_id` int DEFAULT NULL,
+  `description` varchar(255) DEFAULT NULL,
+  `diet_plan` varchar(255) DEFAULT NULL,
+  PRIMARY KEY (`plan_id`),
+  KEY `user_id` (`customer_id`),
+  KEY `coach_id` (`coach_id`),
+  CONSTRAINT `training_plans_ibfk_2` FOREIGN KEY (`customer_id`) REFERENCES `customers` (`user_id`),
+  CONSTRAINT `training_plans_ibfk_3` FOREIGN KEY (`coach_id`) REFERENCES `coaches` (`user_id`)
+) ENGINE=InnoDB AUTO_INCREMENT=6 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
+
+CREATE TABLE `training_schedules` (
+  `schedule_id` int NOT NULL AUTO_INCREMENT,
+  `customer_id` int DEFAULT NULL,
+  `coach_id` int DEFAULT NULL,
+  `title` varchar(255) CHARACTER SET utf8mb4 COLLATE utf8mb4_0900_ai_ci DEFAULT NULL,
+  `start_date` datetime DEFAULT NULL,
+  `end_date` datetime DEFAULT NULL,
+  `description` varchar(255) CHARACTER SET utf8mb4 COLLATE utf8mb4_0900_ai_ci DEFAULT NULL,
+  `color` varchar(255) CHARACTER SET utf8mb4 COLLATE utf8mb4_0900_ai_ci DEFAULT NULL,
+  PRIMARY KEY (`schedule_id`),
+  KEY `user_id` (`customer_id`),
+  KEY `coach_id` (`coach_id`),
+  CONSTRAINT `training_schedules_ibfk_1` FOREIGN KEY (`customer_id`) REFERENCES `customers` (`user_id`),
+  CONSTRAINT `training_schedules_ibfk_2` FOREIGN KEY (`coach_id`) REFERENCES `coaches` (`user_id`)
+) ENGINE=InnoDB AUTO_INCREMENT=16 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
+
+CREATE TABLE `users` (
+  `user_id` int NOT NULL AUTO_INCREMENT,
+  `email` varchar(150) DEFAULT NULL,
+  `password` varchar(80) DEFAULT NULL,
+  `full_name` varchar(80) CHARACTER SET utf8mb4 COLLATE utf8mb4_0900_ai_ci DEFAULT NULL,
+  `gender` tinyint(1) DEFAULT NULL,
+  `date_of_birth` varchar(255) DEFAULT NULL,
+  `phone_number` varchar(10) DEFAULT NULL,
+  `avatar` varchar(255) CHARACTER SET utf8mb4 COLLATE utf8mb4_0900_ai_ci DEFAULT NULL,
+  `role` varchar(20) CHARACTER SET utf8mb4 COLLATE utf8mb4_0900_ai_ci DEFAULT 'CUSTOMER',
+  `status` varchar(20) CHARACTER SET utf8mb4 COLLATE utf8mb4_0900_ai_ci DEFAULT 'OFFLINE',
+  `created_by` int DEFAULT NULL,
+  `refresh_token` text CHARACTER SET utf8mb4 COLLATE utf8mb4_0900_ai_ci,
+  PRIMARY KEY (`user_id`),
+  KEY `created_by` (`created_by`),
+  CONSTRAINT `users_ibfk_1` FOREIGN KEY (`created_by`) REFERENCES `users` (`user_id`)
+) ENGINE=InnoDB AUTO_INCREMENT=11 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
+
+CREATE TABLE `workout_logs` (
+  `log_id` int NOT NULL AUTO_INCREMENT,
+  `customer_id` int DEFAULT NULL,
+  `plan_id` int DEFAULT NULL,
+  `exercise_id` int DEFAULT NULL,
+  `workout_date` datetime DEFAULT NULL,
+  `actual_sets` int DEFAULT NULL,
+  `actual_reps` int DEFAULT NULL,
+  `actual_weight` float DEFAULT NULL,
+  `notes` varchar(255) DEFAULT NULL,
+  PRIMARY KEY (`log_id`),
+  KEY `plan_id` (`plan_id`),
+  KEY `exercise_id` (`exercise_id`),
+  KEY `customer_id` (`customer_id`),
+  CONSTRAINT `workout_logs_ibfk_2` FOREIGN KEY (`plan_id`) REFERENCES `training_plans` (`plan_id`),
+  CONSTRAINT `workout_logs_ibfk_3` FOREIGN KEY (`exercise_id`) REFERENCES `exercises` (`exercise_id`),
+  CONSTRAINT `workout_logs_ibfk_4` FOREIGN KEY (`customer_id`) REFERENCES `customers` (`user_id`)
+) ENGINE=InnoDB AUTO_INCREMENT=13 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
+
+INSERT INTO `checkins` (`checkin_id`, `user_id`, `checkin_time`, `checkout_time`) VALUES
+(4, 1, '2025-07-21 11:34:08', '2025-07-21 11:34:12');
+
+INSERT INTO `coach_customers` (`coach_id`, `customer_id`) VALUES
+(3, 4),
+(3, 8),
+(6, 8);
+
+INSERT INTO `coaches` (`user_id`, `specialization`, `bio`, `rating_avg`) VALUES
+(3, NULL, NULL, NULL),
+(5, NULL, NULL, NULL),
+(6, NULL, NULL, NULL);
+
+INSERT INTO `customers` (`user_id`, `health_info`, `goals`) VALUES
+(4, NULL, NULL),
+(8, NULL, NULL),
+(9, NULL, NULL);
+
+INSERT INTO `equipments` (`equipment_id`, `equipment_name`, `description`, `location`, `status`, `last_maintenance_date`, `created_at`) VALUES
+(3, 'Treadmill X3000', 'Cardio machine with heart rate sensors', 'Room 2 - 3rd floor - Cardio zone - Brand: BodyShape - District 1', 'ACTIVE', NULL, NULL),
+(4, 'Treadmill X3000', 'Cardio machine with heart rate sensors', 'Room 2 - 3rd floor - Cardio zone - Brand: BodyShape - District 1', 'ACTIVE', '2025-06-06 07:11:13', '2025-06-06 07:11:13'),
+(7, 'Vivian Copeland', 'Delectus officia no', 'Omnis deserunt labor', 'MAINTENANCE', '2025-06-06 15:06:02', '2025-06-06 15:05:51'),
+(8, 'Arsenio Chavez', 'Id nostrud aut vitae', 'Quia officiis dignis', 'BROKEN', '2025-06-06 15:06:11', '2025-06-06 15:06:11');
+
+INSERT INTO `exercises` (`exercise_id`, `exercise_name`, `description`, `muscle_group`, `equipment_needed`, `video_url`, `created_at`, `updated_at`) VALUES
+(1, 'Bench Press', 'Barbell bench press for chest muscle development.', 'Chest', 'Barbell, Bench', '1750132610971_927496757_tiktok_nwm_7497273548105321750.mp4', NULL, '2025-07-02 09:38:13'),
+(2, 'Squat', 'Barbell squat to strengthen legs and core.', 'Legs', 'Barbell, Squat Rack', '1750833005152_724856168_Daily_Workout_Routine_Day_-_Day_1.mp4', NULL, '2025-07-02 09:44:07'),
+(3, 'Deadlift', 'Barbell deadlift for full body strength.', 'Back', 'Barbell', 'https://youtube.com/deadlift', NULL, NULL),
+(4, 'Bicep Curl', 'Dumbbell curl to build biceps.', 'Biceps', 'Dumbbell', '', NULL, NULL),
+(5, 'Plank', 'Core stability exercise.', 'Core', 'Bodyweight', 'https://youtube.com/plank', NULL, NULL),
+(7, 'test', 'test', 'chest', 'bodyweight', '1751449780340_786561563_1750132610971_927496757_tiktok_nwm_7497273548105321750.mp4', '2025-07-02 07:39:16', '2025-07-02 09:49:45');
+
+INSERT INTO `healths` (`health_id`, `user_id`, `weight`, `height`, `step`, `heartRate`, `standHours`, `exerciseTime`, `activeEnergy`) VALUES
+(2, 1, 58, 1.68, 225, 98.7137, 0, 1, 3.856);
+
+INSERT INTO `membership_cards` (`card_id`, `customer_id`, `package_id`, `start_date`, `end_date`, `status`) VALUES
+(1, 9, 4, '2025-07-05 00:00:00', '2025-07-05 00:00:00', 'ACTIVE'),
+(2, 8, 1, '2025-06-05 09:55:29', '2025-07-05 09:55:29', 'ACTIVE'),
+(3, 4, 1, '2025-06-05 16:40:04', '2025-07-05 16:40:04', 'ACTIVE');
+
+INSERT INTO `packages` (`package_id`, `package_name`, `description`, `price`, `duration_days`) VALUES
+(1, 'Student Membership', 'Ưu đãi cho sinh viên, giới hạn giờ truy cập nhưng giá rẻ', 300000, 30),
+(2, 'Basic Membership', 'Truy cập phòng gym trong giờ hành chính, không có huấn luyện viên riêng', 500000, 30),
+(3, 'Standard Membership', 'Truy cập không giới hạn giờ, được tham gia lớp nhóm cơ bản', 900000, 30),
+(4, 'Premium Membership', 'Truy cập 24/7, lớp nhóm đa dạng, 1 buổi PT cá nhân miễn phí mỗi tháng', 1500000, 30),
+(5, 'Quarterly Pass', 'Gói 3 tháng, có quyền truy cập toàn bộ tiện ích phòng gym', 4000000, 90),
+(6, 'Annual Pass', 'Gói 12 tháng, ưu đãi tốt nhất, kèm tư vấn sức khỏe định kỳ', 15000000, 365),
+(7, 'Family Package', 'Gói cho nhóm gia đình, giảm giá khi đăng ký từ 2 người trở lên', 2500000, 30);
+
+INSERT INTO `training_plan_exercises` (`planExc_id`, `plan_id`, `exercise_id`, `day_number`, `sets`, `reps`, `weight`, `rest_time`) VALUES
+(6, 1, 1, 1, 4, 8, 60, 90),
+(7, 1, 2, 1, 4, 10, 80, 90),
+(8, 1, 3, 2, 4, 6, 100, 120),
+(9, 1, 4, 3, 3, 12, 15, 60),
+(10, 1, 5, 4, 3, 60, 0, 45);
+
+INSERT INTO `training_plans` (`plan_id`, `coach_id`, `customer_id`, `description`, `diet_plan`) VALUES
+(1, 3, 8, 'Full Body Beginner Program', 'Standard diet plan');
+
+INSERT INTO `training_schedules` (`schedule_id`, `customer_id`, `coach_id`, `title`, `start_date`, `end_date`, `description`, `color`) VALUES
+(1, 4, 3, 'Morning Workout', '2025-06-01 08:00:00', '2025-06-03 08:30:00', 'Morning workout session for customer', 'red'),
+(2, 8, 3, 'Evening Cardio', '2025-06-05 17:00:00', '2025-06-05 18:00:00', 'Cardio session to improve stamina', 'blue'),
+(3, 9, 3, 'Yoga Class', '2025-06-07 07:00:00', '2025-06-07 08:00:00', 'Morning yoga to improve flexibility', 'green'),
+(9, 9, 3, 'Test1123', '2025-06-05 00:30:00', '2025-06-05 02:30:00', 'Test đó nha', 'green'),
+(10, 4, 3, 'Hello', '2025-06-07 19:30:00', '2025-06-08 20:09:00', '123', 'blue'),
+(11, 8, 3, 'Dưa hấu', '2025-06-08 21:05:00', '2025-06-08 22:10:00', 'Hấu văn dưa', 'yellow'),
+(12, 4, 3, '123', '2025-06-10 17:12:00', '2025-06-11 17:12:00', '12', 'purple'),
+(13, 4, 3, 'Hahaa', '2025-06-18 20:53:00', '2025-06-19 20:53:00', '3535', 'orange'),
+(14, 9, 3, 'Hẹ hẹ hẹ', '2025-06-16 21:06:00', '2025-06-16 23:04:00', 'hẹ hẹ hẹ thế thôi', 'gray'),
+(15, 4, 3, 'Anh em mình cứ thế thôi', '2025-06-11 19:03:00', '2025-06-12 19:03:00', 'Hẹ hẹ hẹ', 'red');
+
+INSERT INTO `users` (`user_id`, `email`, `password`, `full_name`, `gender`, `date_of_birth`, `phone_number`, `avatar`, `role`, `status`, `created_by`, `refresh_token`) VALUES
+(1, 'son@gmail.com', '$2b$10$R/wwoI3iQ4zxlhyI2hS8kez9CttChYThFXAw8/R3U5jalh5aB9wja', 'Owner', 1, '2004-04-15', '0336114129', '1748862274581_383007449_Cute_Memes.jpeg', 'OWNER', 'ONLINE', NULL, 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VyX2lkIjoxLCJyb2xlIjoiT1dORVIiLCJrZXkiOiJEVkNpdEEiLCJpYXQiOjE3NTU2MTQ2MDIsImV4cCI6MTc1NTcwMTAwMn0.HykrSNZIV8VfB8yvRLuTzLIo1mMkBTWg0CAvzjrr4Zk'),
+(2, 'test@gmail.com', '$2b$10$Jy8aqlRe7QNOTxVn5HSUYuhqkbqhp6kE3apTmM2iVUwbtrO2YZ4s.', 'test', 1, '2025-05-18', '0123123123', '1748862293327_159108676_ironman.jpg', 'ADMIN', 'OFFLINE', NULL, 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VyX2lkIjoyLCJyb2xlIjoiQURNSU4iLCJrZXkiOiJZeHpXNG4iLCJpYXQiOjE3NTUwNzQwNzUsImV4cCI6MTc1NTE2MDQ3NX0.A0YdQyc8mMocovDTTDy6Sc0lWIcbMZMN39pBuRe_N-I'),
+(3, 'sun@gmail.com', '$2b$10$gXkXsRDMcMAhYBa15aFx8..BA4FzYf0pLtQ.aUWc6Mop70DECG.cu', 'sun', 0, '2025-05-18', '0987654321', '1748862315263_115293305_captain.jpg', 'COACH', 'OFFLINE', NULL, 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VyX2lkIjozLCJyb2xlIjoiQ09BQ0giLCJrZXkiOiJlaGJxRVYiLCJpYXQiOjE3NTM0OTM3MDYsImV4cCI6MTc1MzU4MDEwNn0.aem3FT6OTtXHdRYulZzHAolLb9aa8LXEoqIEEYDuvA0'),
+(4, 'test123@gmail.com', '$2b$10$s/v9sBAlu0RkqJ.LPtPuoOelTev2hrVMmroZe25yVVRJAtAfkYJjC', 'Nguyen Van A', 1, '2000-01-01', '0123123123', '1748872732883_28103112_hulk.jpg', 'CUSTOMER', 'OFFLINE', 1, 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VyX2lkIjo0LCJyb2xlIjoiQ1VTVE9NRVIiLCJrZXkiOiJ0MzVhS0IiLCJpYXQiOjE3NTUwNzUwMjcsImV4cCI6MTc1NTE2MTQyN30.0p4lgKYJLUdl7jWAcfLnfwROevyZAVujaG5YRQndhJU'),
+(5, 'vikimavir@mailinator.com', '$2b$10$.8EA.9Sab0WEm/1cZhlZk.PtmLJIR1fnXK9SpcrB7lKSkk9kzdkAe', 'Harriet Heath', 1, '2000-05-26', '0625589439', NULL, 'COACH', 'OFFLINE', 1, NULL),
+(6, 'halo@gmail.com', '$2b$10$g6o6zWmu9vdfs2vVIJnAfOHqn3LyXbfbnatLj.DX4KJuFqfhKDL52', 'Halo Hola', 1, '2000-03-01', '0456789123', '1748277790479_475466991_cute-raccoon-d-cartoon.png', 'COACH', 'OFFLINE', 1, NULL),
+(7, 'spiderman@gmail.com', '$2b$10$nRSfiGwYAKmjE/NGfgVmyuxAbug/gEdsY3A5Eoq4dx0e.YHA.f2/e', 'Spider Man', 1, '1999-06-30', '0123918412', '1748278050639_707057150_spiderMan.png', 'ADMIN', 'OFFLINE', 1, NULL),
+(8, 'hau@gmail.com', '$2b$10$FYHzK70Dpfanxrpww2DyV..r.M1CUBQP5U2yhkCqxVYsNAOPt33V6', 'Dưa Văn Hấu', 1, '2001-02-08', '0981234675', '1748278142241_552433402_Cute_Memes.jpeg', 'CUSTOMER', 'OFFLINE', 1, 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VyX2lkIjo4LCJyb2xlIjoiQ1VTVE9NRVIiLCJrZXkiOiJodFV6TXYiLCJpYXQiOjE3NTUzNTYzNDYsImV4cCI6MTc1NTQ0Mjc0Nn0.N7DgIx60YKP7e2W84Jm2waGD4vwzSkauM_GfTARUjLU'),
+(9, 'cangao@gmail.com', '$2b$10$Kk.iyPVGVd4OMv06xN7m3.USLq0g4A5AxQDBL52BayzkltlspVVgy', 'Cá Ngáo', 0, '1995-04-23', '0413568823', '1748862348715_227385886_cangao.png', 'CUSTOMER', 'OFFLINE', 1, NULL);
+
+INSERT INTO `workout_logs` (`log_id`, `customer_id`, `plan_id`, `exercise_id`, `workout_date`, `actual_sets`, `actual_reps`, `actual_weight`, `notes`) VALUES
+(6, 8, 1, 1, '2025-06-10 00:00:00', 4, 8, 60, 'Good form'),
+(7, 8, 1, 2, '2025-06-10 00:00:00', 4, 10, 80, 'Felt strong'),
+(8, 8, 1, 3, '2025-06-10 00:00:00', 4, 6, 100, 'Heavy but okay'),
+(9, 8, 1, 4, '2025-06-11 00:00:00', 3, 12, 15, 'Pump is good');
+
+
+
+/*!40101 SET SQL_MODE=@OLD_SQL_MODE */;
+/*!40014 SET FOREIGN_KEY_CHECKS=@OLD_FOREIGN_KEY_CHECKS */;
+/*!40014 SET UNIQUE_CHECKS=@OLD_UNIQUE_CHECKS */;
+/*!40101 SET CHARACTER_SET_CLIENT=@OLD_CHARACTER_SET_CLIENT */;
+/*!40101 SET CHARACTER_SET_RESULTS=@OLD_CHARACTER_SET_RESULTS */;
+/*!40101 SET COLLATION_CONNECTION=@OLD_COLLATION_CONNECTION */;
+/*!40111 SET SQL_NOTES=@OLD_SQL_NOTES */;
