@@ -1,25 +1,24 @@
-import {
-  Controller,
-  Get,
-  Post,
-  Body,
-  Patch,
-  Param,
-  Delete,
-  UseInterceptors,
-  UseGuards,
-  ParseIntPipe,
-  Put,
-} from '@nestjs/common';
-import { PackagesService } from './packages.service';
-import { CreatePackageDto } from './dto/create-package.dto';
-import { UpdatePackageDto } from './dto/update-package.dto';
-import { ApiBearerAuth, ApiTags } from '@nestjs/swagger';
-import { ResponseInterceptor } from '@/common/interceptors/response.interceptor';
+import { Roles } from '@/auth/guards/decorators/roles.decorator';
 import { JwtAuthGuard } from '@/auth/guards/jwt-auth.guard';
 import { RolesGuard } from '@/auth/guards/roles/roles.guard';
 import { UserRole } from '@/auth/guards/roles/user.roles';
-import { Roles } from '@/auth/guards/decorators/roles.decorator';
+import { ResponseInterceptor } from '@/common/interceptors/response.interceptor';
+import {
+  Body,
+  Controller,
+  Delete,
+  Get,
+  Param,
+  ParseIntPipe,
+  Post,
+  Put,
+  UseGuards,
+  UseInterceptors
+} from '@nestjs/common';
+import { ApiBearerAuth, ApiTags } from '@nestjs/swagger';
+import { CreatePackageDto } from './dto/create-package.dto';
+import { UpdatePackageDto } from './dto/update-package.dto';
+import { PackagesService } from './packages.service';
 
 @ApiTags('Packages')
 @UseInterceptors(ResponseInterceptor)

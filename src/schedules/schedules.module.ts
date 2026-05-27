@@ -1,8 +1,8 @@
 import { Module } from '@nestjs/common';
-import { SchedulesService } from './schedules.service';
-import { SchedulesController } from './schedules.controller';
-import { PrismaClient } from '@prisma/client';
 import { JwtService } from '@nestjs/jwt';
+import { PrismaClient } from '@prisma/client';
+import { SchedulesController } from './schedules.controller';
+import { SchedulesService } from './schedules.service';
 
 @Module({
   controllers: [SchedulesController],

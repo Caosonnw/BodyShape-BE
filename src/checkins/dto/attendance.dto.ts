@@ -1,5 +1,5 @@
-import { IsEnum, IsInt } from 'class-validator';
 import { ApiProperty } from '@nestjs/swagger';
+import { IsEnum, IsInt } from 'class-validator';
 
 // export enum AttendanceAction {
 //   CHECKIN = 'checkin',

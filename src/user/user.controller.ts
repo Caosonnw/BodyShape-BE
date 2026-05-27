@@ -1,3 +1,15 @@
+import { Roles } from '@/auth/guards/decorators/roles.decorator';
+import { JwtAuthGuard } from '@/auth/guards/jwt-auth.guard';
+import { RolesGuard } from '@/auth/guards/roles/roles.guard';
+import { UserRole } from '@/auth/guards/roles/user.roles';
+import { ResponseInterceptor } from '@/common/interceptors/response.interceptor';
+import { UploadAvatarDto } from '@/config/upload-dto/upload-avatar.dto';
+import { uploadOptions } from '@/config/upload.config';
+import { ChangeRoleDto } from '@/user/user-dto/change-role.dto';
+import { CreateUserDto } from '@/user/user-dto/create-user.dto';
+import { UpdateUserDto } from '@/user/user-dto/update-user.dto';
+import { RoleType } from '@/utils/type';
+import { Response } from '@/utils/utils';
 import {
   Body,
   Controller,
@@ -5,16 +17,15 @@ import {
   Get,
   HttpStatus,
   Param,
-  ParseIntPipe,
   Patch,
   Post,
   Put,
   Req,
   UploadedFile,
   UseGuards,
-  UseInterceptors,
+  UseInterceptors
 } from '@nestjs/common';
-import { UserService } from './user.service';
+import { FileInterceptor } from '@nestjs/platform-express';
 import {
   ApiBearerAuth,
   ApiBody,
@@ -22,19 +33,7 @@ import {
   ApiParam,
   ApiTags,
 } from '@nestjs/swagger';
-import { ResponseInterceptor } from '@/common/interceptors/response.interceptor';
-import { JwtAuthGuard } from '@/auth/guards/jwt-auth.guard';
-import { RolesGuard } from '@/auth/guards/roles/roles.guard';
-import { Response } from '@/utils/utils';
-import { UserRole } from '@/auth/guards/roles/user.roles';
-import { Roles } from '@/auth/guards/decorators/roles.decorator';
-import { CreateUserDto } from '@/user/user-dto/create-user.dto';
-import { RoleType } from '@/utils/type';
-import { ChangeRoleDto } from '@/user/user-dto/change-role.dto';
-import { UpdateUserDto } from '@/user/user-dto/update-user.dto';
-import { FileInterceptor } from '@nestjs/platform-express';
-import { uploadOptions } from '@/config/upload.config';
-import { UploadAvatarDto } from '@/config/upload-dto/upload-avatar.dto';
+import { UserService } from './user.service';
 
 @ApiTags('User')
 @UseInterceptors(ResponseInterceptor)

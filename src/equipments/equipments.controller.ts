@@ -1,8 +1,10 @@
-import { JwtAuthGuard } from '@/auth/guards/jwt-auth.guard';
 import { Roles } from '@/auth/guards/decorators/roles.decorator';
+import { JwtAuthGuard } from '@/auth/guards/jwt-auth.guard';
 import { RolesGuard } from '@/auth/guards/roles/roles.guard';
 import { UserRole } from '@/auth/guards/roles/user.roles';
 import { ResponseInterceptor } from '@/common/interceptors/response.interceptor';
+import { CreateEquipmentDto } from '@/equipments/dto/create-equipment.dto';
+import { UpdateEquipmentDto } from '@/equipments/dto/update-equipment.dto';
 import {
   Body,
   Controller,
@@ -17,8 +19,6 @@ import {
 } from '@nestjs/common';
 import { ApiBearerAuth, ApiParam, ApiTags } from '@nestjs/swagger';
 import { EquipmentsService } from './equipments.service';
-import { CreateEquipmentDto } from '@/equipments/dto/create-equipment.dto';
-import { UpdateEquipmentDto } from '@/equipments/dto/update-equipment.dto';
 
 @ApiTags('Equipments')
 @UseInterceptors(ResponseInterceptor)

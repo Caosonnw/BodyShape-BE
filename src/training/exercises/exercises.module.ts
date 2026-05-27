@@ -1,8 +1,8 @@
 import { Module } from '@nestjs/common';
-import { ExercisesService } from './exercises.service';
-import { ExercisesController } from './exercises.controller';
 import { JwtService } from '@nestjs/jwt';
 import { PrismaClient } from '@prisma/client';
+import { ExercisesController } from './exercises.controller';
+import { ExercisesService } from './exercises.service';
 
 @Module({
   controllers: [ExercisesController],

@@ -1,7 +1,7 @@
 import { LoginUserDto } from '@/auth/auth-dto/login-user.dto';
 import { RegisterUserDto } from '@/auth/auth-dto/register-user-dto';
-import { JwtAuthGuard } from '@/auth/guards/jwt-auth.guard';
 import { Roles } from '@/auth/guards/decorators/roles.decorator';
+import { JwtAuthGuard } from '@/auth/guards/jwt-auth.guard';
 import { RolesGuard } from '@/auth/guards/roles/roles.guard';
 import { ResponseInterceptor } from '@/common/interceptors/response.interceptor';
 import { Role } from '@/utils/type';

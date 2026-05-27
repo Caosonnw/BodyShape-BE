@@ -1,3 +1,9 @@
+import { Roles } from '@/auth/guards/decorators/roles.decorator';
+import { JwtAuthGuard } from '@/auth/guards/jwt-auth.guard';
+import { RolesGuard } from '@/auth/guards/roles/roles.guard';
+import { UserRole } from '@/auth/guards/roles/user.roles';
+import { AttendanceDto } from '@/checkins/dto/attendance.dto';
+import { ResponseInterceptor } from '@/common/interceptors/response.interceptor';
 import {
   Body,
   Controller,
@@ -8,14 +14,8 @@ import {
   UseGuards,
   UseInterceptors,
 } from '@nestjs/common';
-import { CheckinsService } from './checkins.service';
 import { ApiBearerAuth, ApiTags } from '@nestjs/swagger';
-import { ResponseInterceptor } from '@/common/interceptors/response.interceptor';
-import { JwtAuthGuard } from '@/auth/guards/jwt-auth.guard';
-import { RolesGuard } from '@/auth/guards/roles/roles.guard';
-import { Roles } from '@/auth/guards/decorators/roles.decorator';
-import { UserRole } from '@/auth/guards/roles/user.roles';
-import { AttendanceDto } from '@/checkins/dto/attendance.dto';
+import { CheckinsService } from './checkins.service';
 
 @ApiTags('Checkins')
 @UseInterceptors(ResponseInterceptor)

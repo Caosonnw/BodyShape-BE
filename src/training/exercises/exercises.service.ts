@@ -17,7 +17,7 @@ export class ExercisesService {
         HttpStatus.OK,
         exercises,
       );
-    } catch (error) {
+    } catch (error: any) {
       return Response(
         'Failed to retrieve exercises',
         HttpStatus.INTERNAL_SERVER_ERROR,
@@ -39,7 +39,7 @@ export class ExercisesService {
         HttpStatus.OK,
         exercise,
       );
-    } catch (error) {
+    } catch (error: any) {
       return Response(
         'Failed to retrieve exercise',
         HttpStatus.INTERNAL_SERVER_ERROR,
@@ -85,7 +85,7 @@ export class ExercisesService {
         HttpStatus.CREATED,
         created,
       );
-    } catch (error) {
+    } catch (error: any) {
       if (error instanceof HttpException) throw error;
       return Response(
         'Failed to create exercise',
@@ -124,7 +124,7 @@ export class ExercisesService {
         },
       });
       return Response('Exercise updated successfully', HttpStatus.OK, updated);
-    } catch (error) {
+    } catch (error: any) {
       return Response(
         'Failed to update exercise',
         HttpStatus.INTERNAL_SERVER_ERROR,
@@ -153,7 +153,7 @@ export class ExercisesService {
         where: { exercise_id },
       });
       return Response('Exercise deleted successfully', HttpStatus.OK, deleted);
-    } catch (error) {
+    } catch (error: any) {
       if (error instanceof HttpException) throw error;
       return Response(
         'Failed to delete exercise',

@@ -1,8 +1,8 @@
-import { HttpStatus, Injectable, NotFoundException } from '@nestjs/common';
+import { Response } from '@/utils/utils';
+import { HttpStatus, Injectable } from '@nestjs/common';
+import { PrismaClient } from '@prisma/client';
 import { CreatePackageDto } from './dto/create-package.dto';
 import { UpdatePackageDto } from './dto/update-package.dto';
-import { PrismaClient } from '@prisma/client';
-import { Response } from '@/utils/utils';
 
 @Injectable()
 export class PackagesService {

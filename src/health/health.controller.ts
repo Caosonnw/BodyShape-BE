@@ -1,3 +1,4 @@
+import { ResponseInterceptor } from '@/common/interceptors/response.interceptor';
 import {
   Body,
   Controller,
@@ -6,14 +7,13 @@ import {
   Post,
   UseInterceptors,
 } from '@nestjs/common';
-import { HealthService } from './health.service';
 import {
   ApiBody,
   ApiExcludeEndpoint,
   ApiParam,
   ApiTags,
 } from '@nestjs/swagger';
-import { ResponseInterceptor } from '@/common/interceptors/response.interceptor';
+import { HealthService } from './health.service';
 
 @ApiTags('Health')
 @UseInterceptors(ResponseInterceptor)

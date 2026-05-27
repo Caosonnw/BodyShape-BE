@@ -1,9 +1,9 @@
-import { Module } from '@nestjs/common';
-import { HealthService } from './health.service';
-import { HealthController } from './health.controller';
-import { PrismaClient } from '@prisma/client';
-import { JwtService } from '@nestjs/jwt';
 import { HealthGateway } from '@/gateway/health.gateway';
+import { Module } from '@nestjs/common';
+import { JwtService } from '@nestjs/jwt';
+import { PrismaClient } from '@prisma/client';
+import { HealthController } from './health.controller';
+import { HealthService } from './health.service';
 
 @Module({
   controllers: [HealthController],

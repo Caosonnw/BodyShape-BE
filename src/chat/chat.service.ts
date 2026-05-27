@@ -1,9 +1,9 @@
 import { bedrockClient } from '@/config/aws.config';
 import { InvokeAgentCommand } from '@aws-sdk/client-bedrock-agent-runtime';
 import {
+  ForbiddenException,
   Injectable,
   NotFoundException,
-  ForbiddenException,
 } from '@nestjs/common';
 import { PrismaClient } from '@prisma/client';
 import { v4 as uuidv4 } from 'uuid';

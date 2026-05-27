@@ -1,10 +1,14 @@
-import { JwtAuthGuard } from '@/auth/guards/jwt-auth.guard';
 import { Roles } from '@/auth/guards/decorators/roles.decorator';
+import { JwtAuthGuard } from '@/auth/guards/jwt-auth.guard';
 import { RolesGuard } from '@/auth/guards/roles/roles.guard';
 import { UserRole } from '@/auth/guards/roles/user.roles';
+import { CreateCoachCustomerDto } from '@/coach-customers/dto/create-coach-customer.dto';
+import { DeleteCoachCustomerDto } from '@/coach-customers/dto/delete-coach-customer.dto';
+import { UpdateCoachCustomerDto } from '@/coach-customers/dto/update-coach-customer.dto';
 import { ResponseInterceptor } from '@/common/interceptors/response.interceptor';
 import { Response } from '@/utils/utils';
 import {
+  Body,
   Controller,
   Delete,
   Get,
@@ -19,10 +23,6 @@ import {
 } from '@nestjs/common';
 import { ApiBearerAuth, ApiParam, ApiTags } from '@nestjs/swagger';
 import { CoachCustomersService } from './coach-customers.service';
-import { Body } from '@nestjs/common';
-import { CreateCoachCustomerDto } from '@/coach-customers/dto/create-coach-customer.dto';
-import { UpdateCoachCustomerDto } from '@/coach-customers/dto/update-coach-customer.dto';
-import { DeleteCoachCustomerDto } from '@/coach-customers/dto/delete-coach-customer.dto';
 
 @ApiTags('CoachCustomers')
 @UseInterceptors(ResponseInterceptor)
