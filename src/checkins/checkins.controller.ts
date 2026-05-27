@@ -1,4 +1,5 @@
 import {
+  Body,
   Controller,
   Get,
   Param,
@@ -14,6 +15,7 @@ import { JwtAuthGuard } from '@/auth/guards/jwt-auth.guard';
 import { RolesGuard } from '@/auth/guards/roles/roles.guard';
 import { Roles } from '@/auth/guards/decorators/roles.decorator';
 import { UserRole } from '@/auth/guards/roles/user.roles';
+import { AttendanceDto } from '@/checkins/dto/attendance.dto';
 
 @ApiTags('Checkins')
 @UseInterceptors(ResponseInterceptor)
@@ -53,19 +55,33 @@ export class CheckinsController {
     return await this.checkinsService.getCheckinByUser(userId);
   }
 
-  @ApiBearerAuth()
-  @UseGuards(JwtAuthGuard, RolesGuard)
-  @Roles(UserRole.Owner, UserRole.ADMIN, UserRole.COACH, UserRole.CUSTOMER)
-  @Post('create-checkin/:userId')
-  async createCheckin(@Param('userId', ParseIntPipe) userId: number) {
-    return await this.checkinsService.createCheckin(userId);
-  }
+  // @ApiBearerAuth()
+  // @UseGuards(JwtAuthGuard, RolesGuard)
+  // @Roles(UserRole.Owner, UserRole.ADMIN, UserRole.COACH, UserRole.CUSTOMER)
+  // @Post('create-checkin/:userId')
+  // async createCheckin(@Param('userId', ParseIntPipe) userId: number) {
+  //   return await this.checkinsService.createCheckin(userId);
+  // }
+
+  // @ApiBearerAuth()
+  // @UseGuards(JwtAuthGuard, RolesGuard)
+  // @Roles(UserRole.Owner, UserRole.ADMIN, UserRole.COACH, UserRole.CUSTOMER)
+  // @Post('create-checkout/:userId')
+  // async createCheckout(@Param('userId', ParseIntPipe) userId: number) {
+  //   return await this.checkinsService.createCheckout(userId);
+  // }
 
   @ApiBearerAuth()
   @UseGuards(JwtAuthGuard, RolesGuard)
   @Roles(UserRole.Owner, UserRole.ADMIN, UserRole.COACH, UserRole.CUSTOMER)
-  @Post('create-checkout/:userId')
-  async createCheckout(@Param('userId', ParseIntPipe) userId: number) {
-    return await this.checkinsService.createCheckout(userId);
+  @Post('attendance')
+  async attendance(
+    @Body()
+    body: AttendanceDto,
+  ) {
+    return await this.checkinsService.handleAttendance(
+      body.userId,
+      body.action,
+    );
   }
 }

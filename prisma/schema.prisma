@@ -283,7 +283,7 @@ model direct_conversations {
   conversation_id                                Int                         @id @default(autoincrement())
   user_low_id                                    Int
   user_high_id                                   Int
-  last_message                                   String?                     @db.Text
+  last_message                                   String?                     @db.VarChar(255)
   last_message_at                                DateTime?                   @db.DateTime(0)
   unread_count                                   Int?
   created_at                                     DateTime                    @db.DateTime(0)
@@ -301,7 +301,7 @@ model direct_messages {
   message_id           Int                  @id @default(autoincrement())
   conversation_id      Int
   sender_id            Int
-  content              String?              @db.Text
+  content              String?              @db.VarChar(255)
   created_at           DateTime             @db.DateTime(0)
   direct_conversations direct_conversations @relation(fields: [conversation_id], references: [conversation_id], onDelete: NoAction, onUpdate: NoAction, map: "dm_conv_fk")
   users                users                @relation(fields: [sender_id], references: [user_id], onDelete: NoAction, onUpdate: NoAction, map: "dm_sender_fk")

@@ -4,7 +4,7 @@
 -- https://tableplus.com/
 --
 -- Database: db_bodyshape
--- Generation Time: 2025-08-19 21:51:00.6160
+-- Generation Time: 2026-05-18 14:07:35.3490
 -- -------------------------------------------------------------
 
 
@@ -60,20 +60,23 @@ CREATE TABLE `direct_conversation_reads` (
   `user_id` int NOT NULL,
   `last_read_message_id` int DEFAULT NULL,
   PRIMARY KEY (`conversation_id`,`user_id`),
-  KEY `dcr_user_fk` (`user_id`),
-  CONSTRAINT `dcr_conv_fk` FOREIGN KEY (`conversation_id`) REFERENCES `direct_conversations` (`conversation_id`) ON DELETE CASCADE,
-  CONSTRAINT `dcr_user_fk` FOREIGN KEY (`user_id`) REFERENCES `users` (`user_id`) ON DELETE CASCADE
+  KEY `dcr_user_idx` (`user_id`),
+  CONSTRAINT `dcr_conv_fk` FOREIGN KEY (`conversation_id`) REFERENCES `direct_conversations` (`conversation_id`),
+  CONSTRAINT `dcr_user_fk` FOREIGN KEY (`user_id`) REFERENCES `users` (`user_id`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
 
 CREATE TABLE `direct_conversations` (
   `conversation_id` int NOT NULL AUTO_INCREMENT,
   `user_low_id` int NOT NULL,
   `user_high_id` int NOT NULL,
+  `last_message` varchar(255) CHARACTER SET utf8mb4 COLLATE utf8mb4_0900_ai_ci DEFAULT NULL,
   `last_message_at` datetime DEFAULT NULL,
-  `created_at` datetime NOT NULL DEFAULT CURRENT_TIMESTAMP,
+  `unread_count` int DEFAULT NULL,
+  `created_at` datetime NOT NULL,
   PRIMARY KEY (`conversation_id`),
   UNIQUE KEY `uniq_pair` (`user_low_id`,`user_high_id`),
-  KEY `dc_high_fk` (`user_high_id`),
+  KEY `dc_low_idx` (`user_low_id`),
+  KEY `dc_high_idx` (`user_high_id`),
   CONSTRAINT `dc_high_fk` FOREIGN KEY (`user_high_id`) REFERENCES `users` (`user_id`) ON DELETE CASCADE,
   CONSTRAINT `dc_low_fk` FOREIGN KEY (`user_low_id`) REFERENCES `users` (`user_id`) ON DELETE CASCADE,
   CONSTRAINT `chk_pair_order` CHECK ((`user_low_id` < `user_high_id`))
@@ -83,14 +86,13 @@ CREATE TABLE `direct_messages` (
   `message_id` int NOT NULL AUTO_INCREMENT,
   `conversation_id` int NOT NULL,
   `sender_id` int NOT NULL,
-  `content` text,
-  `type` varchar(20) DEFAULT 'TEXT',
-  `created_at` datetime NOT NULL DEFAULT CURRENT_TIMESTAMP,
+  `content` varchar(255) CHARACTER SET utf8mb4 COLLATE utf8mb4_0900_ai_ci DEFAULT NULL,
+  `created_at` datetime NOT NULL,
   PRIMARY KEY (`message_id`),
   KEY `conv_msg_idx` (`conversation_id`,`message_id`),
   KEY `sender_idx` (`sender_id`),
-  CONSTRAINT `dm_conv_fk` FOREIGN KEY (`conversation_id`) REFERENCES `direct_conversations` (`conversation_id`) ON DELETE CASCADE,
-  CONSTRAINT `dm_sender_fk` FOREIGN KEY (`sender_id`) REFERENCES `users` (`user_id`) ON DELETE CASCADE
+  CONSTRAINT `dm_conv_fk` FOREIGN KEY (`conversation_id`) REFERENCES `direct_conversations` (`conversation_id`),
+  CONSTRAINT `dm_sender_fk` FOREIGN KEY (`sender_id`) REFERENCES `users` (`user_id`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
 
 CREATE TABLE `equipment_issues` (
@@ -144,7 +146,7 @@ CREATE TABLE `healths` (
   PRIMARY KEY (`health_id`),
   KEY `user_id` (`user_id`),
   CONSTRAINT `healths_ibfk_1` FOREIGN KEY (`user_id`) REFERENCES `users` (`user_id`)
-) ENGINE=InnoDB AUTO_INCREMENT=3 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
+) ENGINE=InnoDB AUTO_INCREMENT=4 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
 
 CREATE TABLE `invoices` (
   `invoice_id` int NOT NULL AUTO_INCREMENT,
@@ -290,7 +292,7 @@ CREATE TABLE `workout_logs` (
   CONSTRAINT `workout_logs_ibfk_2` FOREIGN KEY (`plan_id`) REFERENCES `training_plans` (`plan_id`),
   CONSTRAINT `workout_logs_ibfk_3` FOREIGN KEY (`exercise_id`) REFERENCES `exercises` (`exercise_id`),
   CONSTRAINT `workout_logs_ibfk_4` FOREIGN KEY (`customer_id`) REFERENCES `customers` (`user_id`)
-) ENGINE=InnoDB AUTO_INCREMENT=13 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
+) ENGINE=InnoDB AUTO_INCREMENT=14 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
 
 INSERT INTO `checkins` (`checkin_id`, `user_id`, `checkin_time`, `checkout_time`) VALUES
 (4, 1, '2025-07-21 11:34:08', '2025-07-21 11:34:12');
@@ -325,7 +327,8 @@ INSERT INTO `exercises` (`exercise_id`, `exercise_name`, `description`, `muscle_
 (7, 'test', 'test', 'chest', 'bodyweight', '1751449780340_786561563_1750132610971_927496757_tiktok_nwm_7497273548105321750.mp4', '2025-07-02 07:39:16', '2025-07-02 09:49:45');
 
 INSERT INTO `healths` (`health_id`, `user_id`, `weight`, `height`, `step`, `heartRate`, `standHours`, `exerciseTime`, `activeEnergy`) VALUES
-(2, 1, 58, 1.68, 225, 98.7137, 0, 1, 3.856);
+(2, 1, 0, 0, 0, 0, 0, 0, 0),
+(3, 3, 58, 1.68, 0, 93, 0, 0, 0);
 
 INSERT INTO `membership_cards` (`card_id`, `customer_id`, `package_id`, `start_date`, `end_date`, `status`) VALUES
 (1, 9, 4, '2025-07-05 00:00:00', '2025-07-05 00:00:00', 'ACTIVE'),
@@ -364,14 +367,14 @@ INSERT INTO `training_schedules` (`schedule_id`, `customer_id`, `coach_id`, `tit
 (15, 4, 3, 'Anh em mình cứ thế thôi', '2025-06-11 19:03:00', '2025-06-12 19:03:00', 'Hẹ hẹ hẹ', 'red');
 
 INSERT INTO `users` (`user_id`, `email`, `password`, `full_name`, `gender`, `date_of_birth`, `phone_number`, `avatar`, `role`, `status`, `created_by`, `refresh_token`) VALUES
-(1, 'son@gmail.com', '$2b$10$R/wwoI3iQ4zxlhyI2hS8kez9CttChYThFXAw8/R3U5jalh5aB9wja', 'Owner', 1, '2004-04-15', '0336114129', '1748862274581_383007449_Cute_Memes.jpeg', 'OWNER', 'ONLINE', NULL, 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VyX2lkIjoxLCJyb2xlIjoiT1dORVIiLCJrZXkiOiJEVkNpdEEiLCJpYXQiOjE3NTU2MTQ2MDIsImV4cCI6MTc1NTcwMTAwMn0.HykrSNZIV8VfB8yvRLuTzLIo1mMkBTWg0CAvzjrr4Zk'),
-(2, 'test@gmail.com', '$2b$10$Jy8aqlRe7QNOTxVn5HSUYuhqkbqhp6kE3apTmM2iVUwbtrO2YZ4s.', 'test', 1, '2025-05-18', '0123123123', '1748862293327_159108676_ironman.jpg', 'ADMIN', 'OFFLINE', NULL, 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VyX2lkIjoyLCJyb2xlIjoiQURNSU4iLCJrZXkiOiJZeHpXNG4iLCJpYXQiOjE3NTUwNzQwNzUsImV4cCI6MTc1NTE2MDQ3NX0.A0YdQyc8mMocovDTTDy6Sc0lWIcbMZMN39pBuRe_N-I'),
-(3, 'sun@gmail.com', '$2b$10$gXkXsRDMcMAhYBa15aFx8..BA4FzYf0pLtQ.aUWc6Mop70DECG.cu', 'sun', 0, '2025-05-18', '0987654321', '1748862315263_115293305_captain.jpg', 'COACH', 'OFFLINE', NULL, 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VyX2lkIjozLCJyb2xlIjoiQ09BQ0giLCJrZXkiOiJlaGJxRVYiLCJpYXQiOjE3NTM0OTM3MDYsImV4cCI6MTc1MzU4MDEwNn0.aem3FT6OTtXHdRYulZzHAolLb9aa8LXEoqIEEYDuvA0'),
-(4, 'test123@gmail.com', '$2b$10$s/v9sBAlu0RkqJ.LPtPuoOelTev2hrVMmroZe25yVVRJAtAfkYJjC', 'Nguyen Van A', 1, '2000-01-01', '0123123123', '1748872732883_28103112_hulk.jpg', 'CUSTOMER', 'OFFLINE', 1, 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VyX2lkIjo0LCJyb2xlIjoiQ1VTVE9NRVIiLCJrZXkiOiJ0MzVhS0IiLCJpYXQiOjE3NTUwNzUwMjcsImV4cCI6MTc1NTE2MTQyN30.0p4lgKYJLUdl7jWAcfLnfwROevyZAVujaG5YRQndhJU'),
+(1, 'son@gmail.com', '$2b$10$R/wwoI3iQ4zxlhyI2hS8kez9CttChYThFXAw8/R3U5jalh5aB9wja', 'Owner', 1, '2004-04-15', '0336114129', '1748862274581_383007449_Cute_Memes.jpeg', 'OWNER', 'OFFLINE', NULL, 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VyX2lkIjoxLCJyb2xlIjoiT1dORVIiLCJrZXkiOiJGTFk1VloiLCJpYXQiOjE3NzkwODY1NjcsImV4cCI6MTc3OTE3Mjk2N30.4D0NQpflSEjJJWxR6BaiF9Jvyi1D6EpuUy8juxagYsM'),
+(2, 'test@gmail.com', '$2b$10$Jy8aqlRe7QNOTxVn5HSUYuhqkbqhp6kE3apTmM2iVUwbtrO2YZ4s.', 'test', 1, '2025-05-18', '0123123123', '1748862293327_159108676_ironman.jpg', 'ADMIN', 'OFFLINE', NULL, 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VyX2lkIjoyLCJyb2xlIjoiQURNSU4iLCJrZXkiOiJOU3o0cGgiLCJpYXQiOjE3NzkwMjU5NDcsImV4cCI6MTc3OTExMjM0N30.-fptnpHVP9s061IO7VjsHjuYo5e5jWaAswLB9eSch3Q'),
+(3, 'sun@gmail.com', '$2b$10$gXkXsRDMcMAhYBa15aFx8..BA4FzYf0pLtQ.aUWc6Mop70DECG.cu', 'sun', 0, '2025-05-18', '0987654321', '1748862315263_115293305_captain.jpg', 'COACH', 'ONLINE', NULL, 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VyX2lkIjozLCJyb2xlIjoiQ09BQ0giLCJrZXkiOiJMVFN4a0MiLCJpYXQiOjE3NzkwODY1ODUsImV4cCI6MTc3OTE3Mjk4NX0.bcQ7gXHpMvAHvXcBWxb_vVsucAIOOT21fAuS5naKwo8'),
+(4, 'test123@gmail.com', '$2b$10$s/v9sBAlu0RkqJ.LPtPuoOelTev2hrVMmroZe25yVVRJAtAfkYJjC', 'Nguyen Van A', 1, '2000-01-01', '0123123123', '1748872732883_28103112_hulk.jpg', 'CUSTOMER', 'OFFLINE', 1, 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VyX2lkIjo0LCJyb2xlIjoiQ1VTVE9NRVIiLCJrZXkiOiJVbEhCS2kiLCJpYXQiOjE3NTgwMzkwODgsImV4cCI6MTc1ODEyNTQ4OH0._qqpWz7xyUx5ZFzPZc2DsLXshKRKR7gdVe69ePwKxqA'),
 (5, 'vikimavir@mailinator.com', '$2b$10$.8EA.9Sab0WEm/1cZhlZk.PtmLJIR1fnXK9SpcrB7lKSkk9kzdkAe', 'Harriet Heath', 1, '2000-05-26', '0625589439', NULL, 'COACH', 'OFFLINE', 1, NULL),
 (6, 'halo@gmail.com', '$2b$10$g6o6zWmu9vdfs2vVIJnAfOHqn3LyXbfbnatLj.DX4KJuFqfhKDL52', 'Halo Hola', 1, '2000-03-01', '0456789123', '1748277790479_475466991_cute-raccoon-d-cartoon.png', 'COACH', 'OFFLINE', 1, NULL),
 (7, 'spiderman@gmail.com', '$2b$10$nRSfiGwYAKmjE/NGfgVmyuxAbug/gEdsY3A5Eoq4dx0e.YHA.f2/e', 'Spider Man', 1, '1999-06-30', '0123918412', '1748278050639_707057150_spiderMan.png', 'ADMIN', 'OFFLINE', 1, NULL),
-(8, 'hau@gmail.com', '$2b$10$FYHzK70Dpfanxrpww2DyV..r.M1CUBQP5U2yhkCqxVYsNAOPt33V6', 'Dưa Văn Hấu', 1, '2001-02-08', '0981234675', '1748278142241_552433402_Cute_Memes.jpeg', 'CUSTOMER', 'OFFLINE', 1, 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VyX2lkIjo4LCJyb2xlIjoiQ1VTVE9NRVIiLCJrZXkiOiJodFV6TXYiLCJpYXQiOjE3NTUzNTYzNDYsImV4cCI6MTc1NTQ0Mjc0Nn0.N7DgIx60YKP7e2W84Jm2waGD4vwzSkauM_GfTARUjLU'),
+(8, 'hau@gmail.com', '$2b$10$FYHzK70Dpfanxrpww2DyV..r.M1CUBQP5U2yhkCqxVYsNAOPt33V6', 'Dưa Văn Hấu', 1, '2001-02-08', '0981234675', '1748278142241_552433402_Cute_Memes.jpeg', 'CUSTOMER', 'OFFLINE', 1, 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VyX2lkIjo4LCJyb2xlIjoiQ1VTVE9NRVIiLCJrZXkiOiJqN2tGU1MiLCJpYXQiOjE3NzkwODcxMTksImV4cCI6MTc3OTE3MzUxOX0.FtH_LBb6t4P693ppXlW7lMg2e9B5uMOni1_0BsSSpuc'),
 (9, 'cangao@gmail.com', '$2b$10$Kk.iyPVGVd4OMv06xN7m3.USLq0g4A5AxQDBL52BayzkltlspVVgy', 'Cá Ngáo', 0, '1995-04-23', '0413568823', '1748862348715_227385886_cangao.png', 'CUSTOMER', 'OFFLINE', 1, NULL);
 
 INSERT INTO `workout_logs` (`log_id`, `customer_id`, `plan_id`, `exercise_id`, `workout_date`, `actual_sets`, `actual_reps`, `actual_weight`, `notes`) VALUES

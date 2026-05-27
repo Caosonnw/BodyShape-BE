@@ -65,7 +65,7 @@ export class TrainingPlansService {
         HttpStatus.OK,
         trainingPlans,
       );
-    } catch (error) {
+    } catch (error: any) {
       console.log(error);
       return Response(
         'Failed to retrieve training plans',
@@ -100,7 +100,7 @@ export class TrainingPlansService {
         HttpStatus.OK,
         trainingPlan,
       );
-    } catch (error) {
+    } catch (error: any) {
       console.log(error);
       return Response(
         'Failed to retrieve training plan',
@@ -115,7 +115,7 @@ export class TrainingPlansService {
       const { coach_id, customer_id } = createTrainingPlanDto;
 
       // Ensure coach & customer exist (their user rows are in coaches/customers table)
-      const coach = await this.prisma.coaches.findUnique({
+      const coach = await this.prisma.coaches.findFirst({
         where: { user_id: coach_id },
       });
       if (!coach)
@@ -124,7 +124,7 @@ export class TrainingPlansService {
           HttpStatus.BAD_REQUEST,
         );
 
-      const customer = await this.prisma.customers.findUnique({
+      const customer = await this.prisma.customers.findFirst({
         where: { user_id: customer_id },
       });
       if (!customer)
@@ -142,7 +142,7 @@ export class TrainingPlansService {
         HttpStatus.CREATED,
         created,
       );
-    } catch (error) {
+    } catch (error: any) {
       console.log(error);
       return Response(
         'Failed to create training plan',
@@ -157,7 +157,7 @@ export class TrainingPlansService {
     updateTrainingPlanDto: UpdateTrainingPlanDto,
   ) {
     try {
-      const existed = await this.prisma.training_plans.findUnique({
+      const existed = await this.prisma.training_plans.findFirst({
         where: { plan_id: training_plan_id },
       });
       if (!existed)
@@ -166,7 +166,7 @@ export class TrainingPlansService {
       const { coach_id, customer_id } = updateTrainingPlanDto;
 
       // Check if the coach exists
-      const coach = await this.prisma.coaches.findUnique({
+      const coach = await this.prisma.coaches.findFirst({
         where: { user_id: coach_id },
       });
       if (!coach) {
@@ -174,7 +174,7 @@ export class TrainingPlansService {
       }
 
       // Check if the user exists
-      const user = await this.prisma.users.findUnique({
+      const user = await this.prisma.users.findFirst({
         where: { user_id: customer_id },
       });
       if (!user) {
@@ -195,7 +195,7 @@ export class TrainingPlansService {
         HttpStatus.OK,
         updated,
       );
-    } catch (error) {
+    } catch (error: any) {
       console.log(error);
       return Response(
         'Failed to update training plan',
@@ -229,7 +229,7 @@ export class TrainingPlansService {
         HttpStatus.OK,
         null,
       );
-    } catch (error) {
+    } catch (error: any) {
       console.log(error);
       return Response(
         'Failed to delete training plan',

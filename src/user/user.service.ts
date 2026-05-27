@@ -56,6 +56,7 @@ export class UserService {
               date_of_birth: user.date_of_birth,
               avatar: user.avatar,
               role: user.role,
+              status: user.status,
               specialization: user.coaches?.specialization,
               bio: user.coaches?.bio,
               rating_avg: user.coaches?.rating_avg,
@@ -67,6 +68,7 @@ export class UserService {
                 customer_gender: cc.customers?.users?.gender,
                 customer_date_of_birth: cc.customers?.users?.date_of_birth,
                 customer_avatar: cc.customers?.users?.avatar,
+                customer_status: cc.customers?.users?.status,
               })),
             };
           } else if (user.role === Role.CUSTOMER) {
@@ -79,6 +81,7 @@ export class UserService {
               date_of_birth: user.date_of_birth,
               avatar: user.avatar,
               role: user.role,
+              status: user.status,
               health_info: user.customers?.health_info,
               goals: user.customers?.goals,
               coach_customers: user.customers?.coach_customers.map((cc) => ({
@@ -89,6 +92,7 @@ export class UserService {
                 coach_gender: cc.coaches?.users?.gender,
                 coach_date_of_birth: cc.coaches?.users?.date_of_birth,
                 coach_avatar: cc.coaches?.users?.avatar,
+                coach_status: cc.coaches?.users?.status,
               })),
             };
           } else {
@@ -102,6 +106,7 @@ export class UserService {
               date_of_birth: user.date_of_birth,
               avatar: user.avatar,
               role: user.role,
+              status: user.status,
             };
           }
         });
@@ -173,6 +178,7 @@ export class UserService {
               customer_gender: cc.customers?.users?.gender,
               customer_date_of_birth: cc.customers?.users?.date_of_birth,
               customer_avatar: cc.customers?.users?.avatar,
+              customer_status: cc.customers?.users?.status,
             })),
           };
           return Response(
@@ -201,6 +207,7 @@ export class UserService {
               coach_gender: cc.coaches?.users?.gender,
               coach_date_of_birth: cc.coaches?.users?.date_of_birth,
               coach_avatar: cc.coaches?.users?.avatar,
+              coach_status: cc.coaches?.users?.status,
             })),
           };
           return Response(
@@ -564,7 +571,7 @@ export class UserService {
       });
 
       return Response('Change user role successfully!', HttpStatus.OK);
-    } catch (error) {
+    } catch (error: any) {
       console.log(error);
       if (error.message === 'Invalid role') {
         return Response('Invalid role!', HttpStatus.BAD_REQUEST);

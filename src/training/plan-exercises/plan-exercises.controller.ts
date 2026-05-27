@@ -1,4 +1,11 @@
+import { Roles } from '@/auth/guards/decorators/roles.decorator';
+import { JwtAuthGuard } from '@/auth/guards/jwt-auth.guard';
+import { RolesGuard } from '@/auth/guards/roles/roles.guard';
+import { UserRole } from '@/auth/guards/roles/user.roles';
 import { ResponseInterceptor } from '@/common/interceptors/response.interceptor';
+import { CreatePlanExerciseDto } from '@/training/plan-exercises/dto/create-plan-exercises.dto';
+import { UpdatePlanExerciseDto } from '@/training/plan-exercises/dto/update-plan-exercises.dto';
+import { Response } from '@/utils/utils';
 import {
   Body,
   Controller,
@@ -13,15 +20,8 @@ import {
   UseGuards,
   UseInterceptors,
 } from '@nestjs/common';
-import { ApiBearerAuth, ApiParam, ApiTags } from '@nestjs/swagger';
+import { ApiBearerAuth, ApiTags } from '@nestjs/swagger';
 import { PlanExercisesService } from './plan-exercises.service';
-import { JwtAuthGuard } from '@/auth/guards/jwt-auth.guard';
-import { RolesGuard } from '@/auth/guards/roles/roles.guard';
-import { Roles } from '@/auth/guards/decorators/roles.decorator';
-import { UserRole } from '@/auth/guards/roles/user.roles';
-import { CreatePlanExerciseDto } from '@/training/plan-exercises/dto/create-plan-exercises.dto';
-import { UpdatePlanExerciseDto } from '@/training/plan-exercises/dto/update-plan-exercises.dto';
-import { Response } from '@/utils/utils';
 
 @ApiTags('Plan Exercises')
 @UseInterceptors(ResponseInterceptor)

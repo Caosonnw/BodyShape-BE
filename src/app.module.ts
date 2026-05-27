@@ -20,6 +20,7 @@ import { TrainingPlansModule } from './training/training_plans/training_plans.mo
 import { WorkoutLogsModule } from './training/workout-logs/workout-logs.module';
 import { VideosModule } from './videos/videos.module';
 import { PresenceGateway } from '@/gateway/presence.gateway';
+import { ReviewsModule } from './reviews/reviews.module';
 
 @Module({
   imports: [
@@ -40,6 +41,7 @@ import { PresenceGateway } from '@/gateway/presence.gateway';
     VideosModule,
     CheckinsModule,
     PresenceModule,
+    ReviewsModule,
   ],
   controllers: [AppController],
   providers: [AppService, JwtStrategy],

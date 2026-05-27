@@ -1,10 +1,14 @@
+import { CheckinsGateway } from '@/gateway/checkins.gateway';
 import { Response } from '@/utils/utils';
 import { Injectable } from '@nestjs/common';
 import { PrismaClient } from '@prisma/client';
 
 @Injectable()
 export class CheckinsService {
-  constructor(private prisma: PrismaClient) {}
+  constructor(
+    private prisma: PrismaClient,
+    private checkinsGateway: CheckinsGateway,
+  ) {}
 
   async getAllCheckins() {
     try {
@@ -17,12 +21,13 @@ export class CheckinsService {
               email: true,
               phone_number: true,
               avatar: true,
+              role: true,
             },
           },
         },
       });
       return Response('Check-ins retrieved successfully', 200, checkins);
-    } catch (error) {
+    } catch (error: any) {
       console.log(error);
       return Response('Failed to retrieve check-ins', 500, error.message);
     }
@@ -50,6 +55,7 @@ export class CheckinsService {
               email: true,
               phone_number: true,
               avatar: true,
+              role: true,
             },
           },
         },
@@ -59,7 +65,7 @@ export class CheckinsService {
         200,
         checkins,
       );
-    } catch (error) {
+    } catch (error: any) {
       console.log(error);
       return Response(
         'Failed to retrieve check-ins for today',
@@ -92,6 +98,7 @@ export class CheckinsService {
               email: true,
               phone_number: true,
               avatar: true,
+              role: true,
             },
           },
         },
@@ -105,7 +112,7 @@ export class CheckinsService {
         200,
         checkin,
       );
-    } catch (error) {
+    } catch (error: any) {
       console.log(error);
       return Response(
         'Failed to retrieve check-in for today',
@@ -133,7 +140,7 @@ export class CheckinsService {
         orderBy: { checkin_time: 'desc' },
       });
       return Response('Check-ins retrieved successfully', 200, checkins);
-    } catch (error) {
+    } catch (error: any) {
       console.log(error);
       return Response(
         'Failed to retrieve check-ins for user',
@@ -173,8 +180,14 @@ export class CheckinsService {
         },
       });
 
+      this.checkinsGateway.emitAttendanceUpdated({
+        userId,
+        action: 'checkin',
+        checkin,
+      });
+
       return Response('Check-in created successfully', 201, checkin);
-    } catch (error) {
+    } catch (error: any) {
       console.error(error);
       return Response('Failed to create check-in', 500, error.message);
     }
@@ -217,10 +230,34 @@ export class CheckinsService {
         },
       });
 
+      this.checkinsGateway.emitAttendanceUpdated({
+        userId,
+        action: 'checkout',
+        checkin: updated,
+      });
+
       return Response('Check-out successful', 200, updated);
-    } catch (error) {
+    } catch (error: any) {
       console.error(error);
       return Response('Failed to create check-out', 500, error.message);
+    }
+  }
+
+  async handleAttendance(userId: number, action: 'checkin' | 'checkout') {
+    try {
+      if (action === 'checkin') {
+        return await this.createCheckin(userId);
+      }
+
+      if (action === 'checkout') {
+        return await this.createCheckout(userId);
+      }
+
+      return Response('Invalid action', 400, null);
+    } catch (error: any) {
+      console.log(error);
+
+      return Response('Failed to handle attendance', 500, error.message);
     }
   }
 }

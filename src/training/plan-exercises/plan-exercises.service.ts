@@ -124,7 +124,7 @@ export class PlanExercisesService {
         HttpStatus.OK,
         formatted,
       );
-    } catch (error) {
+    } catch (error: any) {
       console.error(error);
       return Response(
         'Failed to retrieve plan exercises.',
@@ -200,7 +200,7 @@ export class PlanExercisesService {
         HttpStatus.OK,
         formatted,
       );
-    } catch (error) {
+    } catch (error: any) {
       console.error(error);
       return Response(
         'Failed to retrieve plan exercise.',
@@ -274,7 +274,7 @@ export class PlanExercisesService {
         HttpStatus.OK,
         formatted,
       );
-    } catch (error) {
+    } catch (error: any) {
       console.error(error);
       return Response(
         'Failed to retrieve plan exercises for customer.',
@@ -358,7 +358,7 @@ export class PlanExercisesService {
         HttpStatus.CREATED,
         formatted,
       );
-    } catch (error) {
+    } catch (error: any) {
       console.error(error);
       return Response(
         'Failed to create plan exercise.',
@@ -429,7 +429,7 @@ export class PlanExercisesService {
         HttpStatus.OK,
         formatted,
       );
-    } catch (error) {
+    } catch (error: any) {
       console.error(error);
       return Response(
         'Failed to update plan exercise.',
@@ -455,7 +455,7 @@ export class PlanExercisesService {
         HttpStatus.OK,
         null,
       );
-    } catch (error) {
+    } catch (error: any) {
       console.error(error);
       return Response(
         'Failed to delete plan exercise.',

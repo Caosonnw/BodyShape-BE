@@ -50,7 +50,7 @@ export class SchedulesService {
         HttpStatus.OK,
         schedules,
       );
-    } catch (error) {
+    } catch (error: any) {
       console.log(error);
       return Response(
         'Error retrieving schedules: ' + error.message,
@@ -77,7 +77,7 @@ export class SchedulesService {
         HttpStatus.CREATED,
         schedule,
       );
-    } catch (error) {
+    } catch (error: any) {
       console.log(error);
       return Response(
         'Error creating schedule: ' + error.message,
@@ -105,7 +105,7 @@ export class SchedulesService {
         },
       });
       return Response('Schedule updated successfully', HttpStatus.OK, schedule);
-    } catch (error) {
+    } catch (error: any) {
       console.log(error);
       return Response(
         'Error updating schedule: ' + error.message,

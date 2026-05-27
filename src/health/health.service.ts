@@ -7,7 +7,7 @@ export class HealthService {
   constructor(private prisma: PrismaClient) {}
 
   async getHealthFromHealthKit(userId: number, healthData) {
-    console.log('✅ healthData nhận được:', healthData);
+    // console.log('healthData nhận được:', healthData);
 
     const user = await this.prisma.users.findFirst({
       where: { user_id: userId },
@@ -20,6 +20,33 @@ export class HealthService {
       return Response('Health data not found!', HttpStatus.BAD_REQUEST);
     }
 
+    // Bóc payload: chấp nhận { healthData: {...} } hoặc {...}
+    const payload = healthData?.healthData ?? healthData;
+    if (!payload || typeof payload !== 'object') {
+      return Response('Health data not found!', HttpStatus.BAD_REQUEST);
+    }
+
+    // 3) Chỉ map những field có thật trong payload
+    //    Lưu ý: 0 là giá trị hợp lệ, nên phải kiểm bằng 'in' thay vì truthy.
+    const mappedData: Record<string, any> = {};
+    if ('weight' in payload) mappedData.weight = payload.weight;
+    if ('height' in payload) mappedData.height = payload.height;
+    if ('steps' in payload) mappedData.step = payload.steps; // DB dùng 'step'
+    if ('heartRate' in payload) mappedData.heartRate = payload.heartRate;
+    if ('standHours' in payload) mappedData.standHours = payload.standHours;
+    if ('exerciseTime' in payload)
+      mappedData.exerciseTime = payload.exerciseTime;
+    if ('activeEnergy' in payload)
+      mappedData.activeEnergy = payload.activeEnergy;
+
+    // (tuỳ chọn) ép kiểu số an toàn
+    for (const k of Object.keys(mappedData)) {
+      const v = mappedData[k];
+      if (typeof v === 'string' && v.trim() !== '' && !isNaN(Number(v))) {
+        mappedData[k] = Number(v);
+      }
+    }
+
     try {
       // Kiểm tra xem user đã có record health chưa (giả sử mỗi user chỉ có 1 bản ghi health)
       const existingHealth = await this.prisma.healths.findFirst({
@@ -28,37 +55,32 @@ export class HealthService {
 
       let health;
 
+      const mappedData = {
+        weight: payload.weight,
+        height: payload.height,
+        step: payload.steps,
+        heartRate: payload.heartRate,
+        standHours: payload.standHours,
+        exerciseTime: payload.exerciseTime,
+        activeEnergy: payload.activeEnergy,
+      };
+
       if (existingHealth) {
         // Update bản ghi hiện tại
         health = await this.prisma.healths.update({
           where: { health_id: existingHealth.health_id },
-          data: {
-            weight: healthData.weight,
-            height: healthData.height,
-            step: healthData.steps,
-            heartRate: healthData.heartRate,
-            standHours: healthData.standHours,
-            exerciseTime: healthData.exerciseTime,
-            activeEnergy: healthData.activeEnergy,
-            // sleep: healthData.sleep,
-            // ...
-          },
+          data: mappedData,
         });
       } else {
         // Tạo mới nếu chưa có bản ghi
         health = await this.prisma.healths.create({
           data: {
             user_id: userId,
-            weight: healthData.weight,
-            height: healthData.height,
-            step: healthData.steps,
-            heartRate: healthData.heart_rate,
-            standHours: healthData.stand_hours,
-            exerciseTime: healthData.exercise_time,
-            activeEnergy: healthData.active_energy,
+            ...mappedData,
           },
         });
       }
+      // console.log(health);
 
       return Response(
         'Health record saved successfully!',
