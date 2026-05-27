@@ -309,7 +309,7 @@ export class AuthService {
         accessToken: newAccessToken,
         refreshToken: newRefreshToken,
       });
-    } catch (error) {
+    } catch (error: any) {
       console.error('Error during token refresh:', error);
 
       if (error.name === 'TokenExpiredError') {
